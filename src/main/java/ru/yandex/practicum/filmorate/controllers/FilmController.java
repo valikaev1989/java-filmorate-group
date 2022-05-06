@@ -1,10 +1,12 @@
 package ru.yandex.practicum.filmorate.controllers;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.filmorate.ValidationException;
+import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.service.FilmService;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -16,47 +18,47 @@ import java.util.List;
 @Slf4j
 @Validated
 public class FilmController {
-    private HashMap<Integer, Film> allFilms = new HashMap<>();
+    private FilmService filmService;
 
-    @PostMapping()
-    public void addFilm(@RequestBody Film film) throws ValidationException {
-        if (isValid(film)) {
-            allFilms.put(film.getId(), film);
-            log.info("Добавлен фильм " + film.getName());
-        }
-    }
-
-    @PutMapping()
-    public void changeFilm(@RequestBody Film film) throws ValidationException {
-        if(isValid(film)) {
-            addFilm(film);
-        }
+    @Autowired
+    public FilmController(FilmService filmService) {
+        this.filmService = filmService;
     }
 
     @GetMapping()
     public List<Film> getFilms() {
-        List<Film> result = new ArrayList<>();
-        for (Film film : allFilms.values()) {
-            result.add(film);
-        }
-        return result;
+        return filmService.getFilms();
     }
 
-    private boolean isValid(Film film) {
-        if (film.getName().isEmpty() | film.getName().isBlank()) {
-            log.warn("Название фильма пустое");
-            throw new ValidationException("Название фильма не может быть пустым");
-        } else if (film.getDescription().length() > 200) {
-            log.warn("Описание фильма " + film.getName() + " больше 200 знаков");
-            throw new ValidationException("Описание не может превышать 200 знаков");
-        } else if (film.getReleaseDate().isBefore(LocalDate.of(1895, 12, 28))) {
-            log.warn("Дата выпуска фильма " + film.getName() + " раньше 28.12.1895");
-            throw new ValidationException("Дата выпуска фильма не может быть раньше 28.12.1895");
-        } else if (film.getDurationFilm().isNegative()) {
-            log.warn("Продолжительность фильма " + film.getName() + " отрицательная");
-            throw new ValidationException("Продолжительность фильма не может быть отрицательной");
-        } else {
-            return true;
-        }
+    @PostMapping()
+    public Film addFilm(@RequestBody Film film) throws ValidationException {
+        filmService.addFilm(film);
+        return film;
+    }
+
+    @PutMapping()
+    public Film changeFilm(@RequestBody Film film) throws ValidationException {
+        filmService.changeFilm(film);
+        return film;
+    }
+
+    @PutMapping("/{id}/like/{userId}")
+    public void like(@PathVariable int id, @PathVariable int userId) {
+        filmService.like(id, userId);
+    }
+
+    @DeleteMapping("/{id}/like/{userId}")
+    public void deleteLike(@PathVariable int id, @PathVariable int userId) {
+        filmService.deleteLike(id, userId);
+    }
+
+    @GetMapping("/popular")
+    public List<Film> getPopularFilms(@RequestParam(defaultValue = "10") int count) {
+        return filmService.getPopularFilms(count);
+    }
+
+    @GetMapping("/{id}")
+    public Film getFilmById(@PathVariable int id) {
+        return filmService.getFilmById(id);
     }
 }
