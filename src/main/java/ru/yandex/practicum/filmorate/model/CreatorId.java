@@ -12,4 +12,12 @@ public class CreatorId {
     public static int createFilmId() {
         return filmId++;
     }
+
+    public static void setUserId() {
+        userId = 1;
+    }
+
+    public static void setFilmId() {
+        filmId = 1;
+    }
 }

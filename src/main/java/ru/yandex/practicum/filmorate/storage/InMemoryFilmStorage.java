@@ -65,7 +65,7 @@ public class InMemoryFilmStorage implements FilmStorage {
 
     @Override
     public void like(int id, int userId) {
-        allFilms.get(id).addLike(userId);
+         allFilms.get(id).addLike(userId);
     }
 
     @Override
