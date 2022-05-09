@@ -20,7 +20,7 @@ import java.util.stream.Collectors;
 @Component
 @Slf4j
 public class InMemoryUserStorage implements UserStorage {
-    private HashMap<Integer, User> allUsers = new HashMap<>();
+    private HashMap<Long, User> allUsers = new HashMap<>();
 
     @Override
     public List<User> getAllUsers() {
@@ -47,11 +47,6 @@ public class InMemoryUserStorage implements UserStorage {
     }
 
     @Override
-    public User findUserById(int id) {
-        return allUsers.get(id);
-    }
-
-    @Override
     public boolean isValid(User user) {
         if (user.getEmail().isEmpty() | !user.getEmail().contains("@")) {
             log.warn("Неккоректный email пользователя");
@@ -71,33 +66,38 @@ public class InMemoryUserStorage implements UserStorage {
     }
 
     @Override
-    public void addFriendToUser(int idUser, int friendId) {
+    public User findUserById(int id) {
+        return allUsers.get(id);
+    }
+
+    @Override
+    public void addFriendToUser(long idUser, long friendId) {
         if(allUsers.containsKey(idUser) && allUsers.containsKey(friendId)) {
             allUsers.get(idUser).addFriend(friendId);
         } else {
-            throw new UserNotFoundException("One of that id isn't correct " + idUser, friendId);
+            throw new UserNotFoundException("One of that id isn't correct " + idUser + " " + friendId);
         }
     }
 
     @Override
-    public void deleteFromFriends(int idUser, int friendId) {
+    public void deleteFromFriends(long idUser, long friendId) {
         allUsers.get(idUser).deleteFriend(friendId);
     }
 
     @Override
-    public List<User> getUserFriends(int id) {
-        Set<Integer> set = allUsers.get(id).getFriends();
+    public List<User> getUserFriends(long id) {
+        Set<Long> set = allUsers.get(id).getFriends();
         return allUsers.values().stream()
                 .filter(x -> set.contains(x.getId()))
                 .collect(Collectors.toList());
     }
 
     @Override
-    public User getUser(int id) {
+    public User getUser(long id) {
         if(allUsers.containsKey(id)) {
             return allUsers.get(id);
         } else {
-            throw new UserNotFoundException("User not found", id);
+            throw new UserNotFoundException("User not found " + id);
         }
     }
 }

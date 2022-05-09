@@ -10,20 +10,20 @@ import java.util.Set;
 
 @Data
 public class User {
-    int id;
-    Set<Integer> friends = new HashSet<>();
+    private long id;
+    private Set<Long> friends = new HashSet<>();
 
     @Email(message = "Email has to be correct")
-    String email;
+    private String email;
 
     @NotBlank(message = "Login cannot be blank")
     @NotEmpty(message = "Login cannot be empty")
-    String login;
+    private String login;
 
-    String name;
+    private String name;
 
     @Past(message = "Birthday have to be in the past")
-    LocalDate birthday;
+    private LocalDate birthday;
 
     public User(int id, String email, String login, String name, LocalDate birthday) {
         this.id = id;
@@ -33,11 +33,11 @@ public class User {
         this.birthday = birthday;
     }
 
-    public void addFriend(int id) {
+    public void addFriend(long id) {
         friends.add(id);
     }
 
-    public void deleteFriend(int id) {
+    public void deleteFriend(long id) {
         friends.remove(id);
     }
 }

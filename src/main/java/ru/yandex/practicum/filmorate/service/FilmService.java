@@ -30,11 +30,11 @@ public class FilmService {
         filmStorage.changeFilm(film);
     }
 
-    public void like(int id, int userId) {
+    public void like(long id, long userId) {
         filmStorage.like(id, userId);
     }
 
-    public void deleteLike(int id, int userId) {
+    public void deleteLike(long id, long userId) {
         filmStorage.deleteLike(id, userId);
     }
 
@@ -49,7 +49,7 @@ public class FilmService {
         }
     }
 
-    public Film getFilmById(int id) {
+    public Film getFilmById(long id) {
         return filmStorage.getFilmById(id);
     }
 }

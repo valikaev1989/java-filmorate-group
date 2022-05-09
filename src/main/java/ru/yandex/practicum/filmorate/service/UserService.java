@@ -31,27 +31,27 @@ public class UserService {
         userStorage.changeUSer(user);
     }
 
-    public void addFriendToUser(int idUser, int friendId) {
+    public void addFriendToUser(long idUser, long friendId) {
         userStorage.addFriendToUser(idUser, friendId);
         userStorage.addFriendToUser(friendId, idUser);
     }
 
-    public void deleteFromFriend(int idUser, int friendId) {
+    public void deleteFromFriend(long idUser, long friendId) {
         userStorage.deleteFromFriends(idUser, friendId);
         userStorage.deleteFromFriends(friendId, idUser);
     }
 
-    public List<User> getUserFriends(int id) {
+    public List<User> getUserFriends(long id) {
         return userStorage.getUserFriends(id);
     }
 
-    public List<User> getCommonFriend(int id, int otherId) {
+    public List<User> getCommonFriend(long id, long otherId) {
         List<User> user = getUserFriends(id);
         List<User> anotherUser = getUserFriends(otherId);
         return user.stream().filter(x -> anotherUser.contains(x)).collect(Collectors.toList());
     }
 
-    public User getUser(int id) {
+    public User getUser(long id) {
         return userStorage.getUser(id);
     }
 }

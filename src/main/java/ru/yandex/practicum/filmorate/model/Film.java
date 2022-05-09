@@ -14,20 +14,20 @@ import java.util.Set;
 
 @Data
 public class Film {
-    int id;
-    Set<Integer> likes = new HashSet<>();
+    private long id;
+    private Set<Long> likes = new HashSet<>();
 
     @NotBlank(message = "Name cannot be blank")
-    String name;
+    private String name;
 
     @Size(min = 1, max = 200, message = "Description cannot be more then 200 symbol")
-    String description;
+    private String description;
 
-    LocalDate releaseDate;
+    private LocalDate releaseDate;
 
     @JsonProperty(value = "duration")
     @Positive
-    Duration durationFilm;
+    private Duration durationFilm;
 
     public Film(int id, String name, String description, LocalDate releaseDate, Duration durationFilm) {
         this.id = id;
@@ -37,11 +37,11 @@ public class Film {
         this.durationFilm = durationFilm;
     }
 
-    public void addLike(int userId) {
+    public void addLike(long userId) {
         likes.add(userId);
     }
 
-    public void deleteLike(int userId) {
+    public void deleteLike(long userId) {
         likes.remove(userId);
     }
 }

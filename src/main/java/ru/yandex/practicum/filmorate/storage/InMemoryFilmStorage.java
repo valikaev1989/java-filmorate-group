@@ -15,7 +15,7 @@ import java.util.List;
 @Component
 @Slf4j
 public class InMemoryFilmStorage implements FilmStorage {
-    private HashMap<Integer, Film> allFilms = new HashMap<>();
+    private HashMap<Long, Film> allFilms = new HashMap<>();
 
     @Override
     public List<Film> getFilms() {
@@ -64,25 +64,25 @@ public class InMemoryFilmStorage implements FilmStorage {
     }
 
     @Override
-    public void like(int id, int userId) {
+    public void like(long id, long userId) {
          allFilms.get(id).addLike(userId);
     }
 
     @Override
-    public void deleteLike(int id, int userId) {
+    public void deleteLike(long id, long userId) {
         if(allFilms.containsKey(id) && allFilms.containsKey(userId)) {
             allFilms.get(id).deleteLike(userId);
         } else {
-            throw new FilmNotFoundException("Film id not found " + id, userId);
+            throw new FilmNotFoundException("Film id not found " + id + " " + userId);
         }
     }
 
     @Override
-    public Film getFilmById(int id) {
+    public Film getFilmById(long id) {
         if(allFilms.containsKey(id)) {
             return allFilms.get(id);
         } else {
-            throw new FilmNotFoundException("Film not found id ", id);
+            throw new FilmNotFoundException("Film not found id " + id);
         }
     }
 }

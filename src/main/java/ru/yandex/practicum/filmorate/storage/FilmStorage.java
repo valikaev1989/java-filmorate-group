@@ -13,9 +13,9 @@ public interface FilmStorage {
 
     boolean isValid(Film film);
 
-    void like(int id, int userId);
+    void like(long id, long userId);
 
-    void deleteLike(int id, int userId);
+    void deleteLike(long id, long userId);
 
-    Film getFilmById(int id);
+    Film getFilmById(long id);
 }
