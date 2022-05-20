@@ -9,21 +9,39 @@ import javax.validation.constraints.Positive;
 import javax.validation.constraints.Size;
 import java.time.Duration;
 import java.time.LocalDate;
+import java.util.HashSet;
+import java.util.Set;
 
-@AllArgsConstructor
 @Data
 public class Film {
-    int id;
+    private long id;
+    private Set<Long> likes = new HashSet<>();
 
     @NotBlank(message = "Name cannot be blank")
-    String name;
+    private String name;
 
     @Size(min = 1, max = 200, message = "Description cannot be more then 200 symbol")
-    String description;
+    private String description;
 
-    LocalDate releaseDate;
+    private LocalDate releaseDate;
 
     @JsonProperty(value = "duration")
     @Positive
-    Duration durationFilm;
+    private Duration durationFilm;
+
+    public Film(int id, String name, String description, LocalDate releaseDate, Duration durationFilm) {
+        this.id = id;
+        this.name = name;
+        this.description = description;
+        this.releaseDate = releaseDate;
+        this.durationFilm = durationFilm;
+    }
+
+    public void addLike(long userId) {
+        likes.add(userId);
+    }
+
+    public void deleteLike(long userId) {
+        likes.remove(userId);
+    }
 }

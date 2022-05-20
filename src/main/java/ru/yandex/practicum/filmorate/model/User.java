@@ -3,26 +3,41 @@ package ru.yandex.practicum.filmorate.model;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
-import javax.validation.constraints.Email;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.Past;
+import javax.validation.constraints.*;
 import java.time.LocalDate;
+import java.util.HashSet;
+import java.util.Set;
 
-@AllArgsConstructor
 @Data
 public class User {
-    int id;
+    private long id;
+    private Set<Long> friends = new HashSet<>();
 
     @Email(message = "Email has to be correct")
-    String email;
+    private String email;
 
     @NotBlank(message = "Login cannot be blank")
     @NotEmpty(message = "Login cannot be empty")
-    String login;
+    private String login;
 
-    String name;
+    private String name;
 
     @Past(message = "Birthday have to be in the past")
-    LocalDate birthday;
+    private LocalDate birthday;
+
+    public User(int id, String email, String login, String name, LocalDate birthday) {
+        this.id = id;
+        this.email = email;
+        this.login = login;
+        this.name = name;
+        this.birthday = birthday;
+    }
+
+    public void addFriend(long id) {
+        friends.add(id);
+    }
+
+    public void deleteFriend(long id) {
+        friends.remove(id);
+    }
 }
