@@ -1,5 +1,5 @@
 # java-filmorate  
-![QuickDBD-export](https://user-images.githubusercontent.com/95374153/169587648-34a35dac-7c3a-4618-a211-20781340dc7f.png)  
+![QuickDBD-export](https://user-images.githubusercontent.com/95374153/169667199-baf6b561-1407-4d54-81af-6968c32e962a.png)
 __Выбрать фильм__  
 SELECT film_name  
 FROM Film  
