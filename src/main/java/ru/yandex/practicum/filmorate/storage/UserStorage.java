@@ -9,9 +9,9 @@ public interface UserStorage {
 
     List<User> getAllUsers();
 
-    void addUser(User user);
+    User addUser(User user);
 
-    void changeUSer(User user);
+    User changeUSer(User user);
 
     boolean isValid(User user);
 

@@ -27,8 +27,8 @@ public class UserService {
         userStorage.addUser(user);
     }
 
-    public void changeUser(User user) {
-        userStorage.changeUSer(user);
+    public User changeUser(User user) {
+        return userStorage.changeUSer(user);
     }
 
     public void addFriendToUser(long idUser, long friendId) {

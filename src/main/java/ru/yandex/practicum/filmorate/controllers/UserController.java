@@ -35,8 +35,8 @@ public class UserController {
     }
 
     @PutMapping
-    public void changeUser(@RequestBody User user) {
-        userService.changeUser(user);
+    public User changeUser(@RequestBody User user) {
+        return userService.changeUser(user);
     }
 
     @PutMapping("/{id}/friends/{friendId}")

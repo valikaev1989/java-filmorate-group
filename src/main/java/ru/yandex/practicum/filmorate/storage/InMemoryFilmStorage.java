@@ -58,7 +58,9 @@ public class InMemoryFilmStorage implements FilmStorage {
         } else if (film.getDurationFilm().isNegative()) {
             log.warn("Продолжительность фильма " + film.getName() + " отрицательная");
             throw new ValidationException("Продолжительность фильма не может быть отрицательной");
-        } else {
+        }  else if(film.getId() < 0) {
+            throw new FilmNotFoundException("id фильма не может быть отрицательным");
+        }else {
             return true;
         }
     }

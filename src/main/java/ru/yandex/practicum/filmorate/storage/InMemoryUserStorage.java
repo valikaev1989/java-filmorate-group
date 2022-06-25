@@ -28,22 +28,26 @@ public class InMemoryUserStorage implements UserStorage {
     }
 
     @Override
-    public void addUser(User user) {
+    public User addUser(User user) {
         if (isValid(user)) {
             user.setId(CreatorId.createUserId());
             allUsers.put(user.getId(), user);
+            return user;
         }
+        return null;
     }
 
     @Override
-    public void changeUSer(User user) {
+    public User changeUSer(User user) {
         if (isValid(user)) {
             if (allUsers.containsKey(user.getId())) {
                 allUsers.put(user.getId(), user);
+                return user;
             } else {
-                addUser(user);
+                return addUser(user);
             }
         }
+        return null;
     }
 
     @Override
@@ -57,7 +61,10 @@ public class InMemoryUserStorage implements UserStorage {
         } else if (user.getBirthday().isAfter(LocalDate.now())) {
             log.warn("Дата рождения пользователя в будущем");
             throw new ValidationException("Дата рождения не может быть в будущем");
-        } else {
+        } else if(user.getId() < 0) {
+            log.warn("Отризательный id");
+            throw new UserNotFoundException("id не может быть отрицательным");
+        }else {
             if (user.getName().isEmpty()) {
                 user.setName(user.getLogin());
             }
