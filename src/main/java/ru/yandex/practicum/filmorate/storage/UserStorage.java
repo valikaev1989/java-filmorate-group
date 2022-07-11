@@ -15,7 +15,7 @@ public interface UserStorage {
 
     boolean isValid(User user);
 
-    User findUserById(int id);
+    User findUserById(long id);
 
     void addFriendToUser(long idUser, long idFriend);
 
@@ -23,5 +23,4 @@ public interface UserStorage {
 
     List<User> getUserFriends(long id);
 
-    User getUser(long id);
 }

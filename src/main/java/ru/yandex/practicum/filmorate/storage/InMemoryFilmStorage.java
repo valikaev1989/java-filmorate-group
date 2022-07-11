@@ -2,10 +2,13 @@ package ru.yandex.practicum.filmorate.storage;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
-import ru.yandex.practicum.filmorate.exceptions.FilmNotFoundException;
+//import ru.yandex.practicum.filmorate.exceptions.FilmNotFoundException;
+import ru.yandex.practicum.filmorate.exceptions.ModelNotFoundException;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.CreatorId;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.Genre;
+import ru.yandex.practicum.filmorate.model.MPA;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -23,15 +26,16 @@ public class InMemoryFilmStorage implements FilmStorage {
     }
 
     @Override
-    public void addFilm(Film film) {
+    public Film addFilm(Film film) {
         if (isValid(film)) {
             film.setId(CreatorId.createFilmId());
             allFilms.put(film.getId(), film);
         }
+        return film;
     }
 
     @Override
-    public void changeFilm(Film film) {
+    public Film changeFilm(Film film) {
         if (isValid(film)) {
             if (allFilms.containsKey(film.getId())) {
                 allFilms.put(film.getId(), film);
@@ -39,6 +43,7 @@ public class InMemoryFilmStorage implements FilmStorage {
                 addFilm(film);
             }
         }
+        return film;
     }
 
     @Override
@@ -55,11 +60,11 @@ public class InMemoryFilmStorage implements FilmStorage {
         } else if (film.getReleaseDate().isBefore(LocalDate.of(1895, 12, 28))) {
             log.warn("Дата выпуска фильма " + film.getName() + " раньше 28.12.1895");
             throw new ValidationException("Дата выпуска фильма не может быть раньше 28.12.1895");
-        } else if (film.getDurationFilm().isNegative()) {
+        } else if (film.getDuration() < 0) {
             log.warn("Продолжительность фильма " + film.getName() + " отрицательная");
             throw new ValidationException("Продолжительность фильма не может быть отрицательной");
         }  else if(film.getId() < 0) {
-            throw new FilmNotFoundException("id фильма не может быть отрицательным");
+            throw new ModelNotFoundException("id фильма не может быть отрицательным");
         }else {
             return true;
         }
@@ -75,7 +80,7 @@ public class InMemoryFilmStorage implements FilmStorage {
         if(allFilms.containsKey(id) && allFilms.containsKey(userId)) {
             allFilms.get(id).deleteLike(userId);
         } else {
-            throw new FilmNotFoundException("Film id not found " + id + " " + userId);
+            throw new ModelNotFoundException("Film id not found " + id + " " + userId);
         }
     }
 
@@ -84,7 +89,27 @@ public class InMemoryFilmStorage implements FilmStorage {
         if(allFilms.containsKey(id)) {
             return allFilms.get(id);
         } else {
-            throw new FilmNotFoundException("Film not found id " + id);
+            throw new ModelNotFoundException("Film not found id " + id);
         }
+    }
+
+    @Override
+    public MPA getMpaById(int id) {
+        return null;
+    }
+
+    @Override
+    public List<MPA> getAllMpa() {
+        return null;
+    }
+
+    @Override
+    public Genre getGenreById(int id) {
+        return null;
+    }
+
+    @Override
+    public List<Genre> getAllGenres() {
+        return null;
     }
 }

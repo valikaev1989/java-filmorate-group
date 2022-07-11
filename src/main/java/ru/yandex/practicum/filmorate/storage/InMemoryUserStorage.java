@@ -1,9 +1,9 @@
 package ru.yandex.practicum.filmorate.storage;
 
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
-import ru.yandex.practicum.filmorate.exceptions.UserNotFoundException;
+import org.springframework.util.StringUtils;
+import ru.yandex.practicum.filmorate.exceptions.ModelNotFoundException;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.CreatorId;
 import ru.yandex.practicum.filmorate.model.User;
@@ -63,7 +63,7 @@ public class InMemoryUserStorage implements UserStorage {
             throw new ValidationException("Дата рождения не может быть в будущем");
         } else if(user.getId() < 0) {
             log.warn("Отризательный id");
-            throw new UserNotFoundException("id не может быть отрицательным");
+            throw new ModelNotFoundException("id не может быть отрицательным");
         }else {
             if (user.getName().isEmpty()) {
                 user.setName(user.getLogin());
@@ -73,7 +73,7 @@ public class InMemoryUserStorage implements UserStorage {
     }
 
     @Override
-    public User findUserById(int id) {
+    public User findUserById(long id) {
         return allUsers.get(id);
     }
 
@@ -82,7 +82,7 @@ public class InMemoryUserStorage implements UserStorage {
         if(allUsers.containsKey(idUser) && allUsers.containsKey(friendId)) {
             allUsers.get(idUser).addFriend(friendId);
         } else {
-            throw new UserNotFoundException("One of that id isn't correct " + idUser + " " + friendId);
+            throw new ModelNotFoundException("One of that id isn't correct " + idUser + " " + friendId);
         }
     }
 
@@ -99,12 +99,11 @@ public class InMemoryUserStorage implements UserStorage {
                 .collect(Collectors.toList());
     }
 
-    @Override
     public User getUser(long id) {
         if(allUsers.containsKey(id)) {
             return allUsers.get(id);
         } else {
-            throw new UserNotFoundException("User not found " + id);
+            throw new ModelNotFoundException("User not found " + id);
         }
     }
 }
