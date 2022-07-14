@@ -19,7 +19,7 @@ import java.util.List;
 
 @Component("userDBStorage")
 public class UserDbStorage implements UserStorage {
-    JdbcTemplate jdbcTemplate;
+    private final JdbcTemplate jdbcTemplate;
 
     @Autowired
     public UserDbStorage(JdbcTemplate jdbcTemplate) {
@@ -105,7 +105,7 @@ public class UserDbStorage implements UserStorage {
     }
 
     private User checkName(User user) {
-        if (user.getName().isEmpty()) {
+        if (user.getName().isEmpty() || user.getName() == null) {
             user.setName(user.getLogin());
         }
         return user;
