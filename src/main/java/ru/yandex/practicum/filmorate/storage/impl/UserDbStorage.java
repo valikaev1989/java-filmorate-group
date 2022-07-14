@@ -66,11 +66,6 @@ public class UserDbStorage implements UserStorage {
     }
 
     @Override
-    public boolean isValid(User user) {
-        return false;
-    }
-
-    @Override
     public User findUserById(long id) {
         Collection<User> users = getAllUsers();
         if(users.stream().noneMatch(x -> x.getId() == id)) {
@@ -79,35 +74,6 @@ public class UserDbStorage implements UserStorage {
             String sql = "SELECT * FROM userr WHERE user_id = ?";
             return jdbcTemplate.queryForObject(sql, this::mapRowToUser, id);
         }
-    }
-
-    private User mapRowToUser(ResultSet resultSet, int rowNum) throws SQLException {
-        int id = resultSet.getInt("user_id");
-        String email = resultSet.getString("email");
-        String login = resultSet.getString("login");
-        String name = resultSet.getString("user_name");
-        LocalDate birthdate = resultSet.getDate("birth_date").toLocalDate();
-        return new User(id, email, login, name, birthdate);
-    }
-
-    @Override
-    public void addFriendToUser(long idUser, long idFriend) {
-        User user = findUserById(idUser);
-        User friendUser = findUserById(idFriend);
-        Collection<User> users = getAllUsers();
-        if(!users.contains(user) && users.contains(friendUser)) {
-            throw new ModelNotFoundException("User not found");
-        } else {
-            String sql = "insert into friends (user_id, friend_id)" +
-                    "values(?, ?)";
-            jdbcTemplate.update(sql, idUser, idFriend);
-        }
-    }
-
-    @Override
-    public void deleteFromFriends(long idUser, long idFriend) {
-        String sql = "delete from friends where user_id = ? and friend_id = ?";
-        jdbcTemplate.update(sql, idUser, idFriend);
     }
 
     @Override
@@ -143,5 +109,14 @@ public class UserDbStorage implements UserStorage {
             user.setName(user.getLogin());
         }
         return user;
+    }
+
+    private User mapRowToUser(ResultSet resultSet, int rowNum) throws SQLException {
+        int id = resultSet.getInt("user_id");
+        String email = resultSet.getString("email");
+        String login = resultSet.getString("login");
+        String name = resultSet.getString("user_name");
+        LocalDate birthdate = resultSet.getDate("birth_date").toLocalDate();
+        return new User(id, email, login, name, birthdate);
     }
 }

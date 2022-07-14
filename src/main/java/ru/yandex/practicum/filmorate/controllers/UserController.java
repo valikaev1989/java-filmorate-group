@@ -68,6 +68,6 @@ public class UserController {
     @GetMapping("{id}")
     public User getUser(@PathVariable long id) {
         log.info(String.format("Get user %d", id));
-        return userService.getUser(id);
+        return userService.getUserById(id);
     }
 }

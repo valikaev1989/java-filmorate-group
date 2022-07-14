@@ -1,24 +1,27 @@
 package ru.yandex.practicum.filmorate.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.RequestBody;
-import ru.yandex.practicum.filmorate.exceptions.ValidationException;
+import ru.yandex.practicum.filmorate.exceptions.ModelNotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
+import ru.yandex.practicum.filmorate.storage.impl.FriendDbStorage;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
 public class UserService {
 
-    private UserStorage userStorage;
+    private final UserStorage userStorage;
+    private final FriendDbStorage friendDbStorage;
 
     @Autowired
-    public UserService(@Qualifier("userDBStorage") UserStorage userStorage) {
+    public UserService(UserStorage userStorage, FriendDbStorage friendDbStorage) {
         this.userStorage = userStorage;
+        this.friendDbStorage = friendDbStorage;
     }
 
     public List<User> getAllUsers() {
@@ -33,26 +36,37 @@ public class UserService {
         return userStorage.changeUSer(user);
     }
 
-    public void addFriendToUser(long idUser, long friendId) {
-        userStorage.addFriendToUser(idUser, friendId);
+    public void addFriendToUser(long userId, long friendId) {
+        User user = getUserById(userId);
+        User friendUser = getUserById(friendId);
+        Collection<User> users = getAllUsers();
+        if(!users.contains(user) && users.contains(friendUser)) {
+            throw new ModelNotFoundException("User not found");
+        } else {
+            friendDbStorage.addFriendToUser(userId, friendId);
+        }
     }
 
     public void deleteFromFriend(long idUser, long friendId) {
-        userStorage.deleteFromFriends(idUser, friendId);
-        userStorage.deleteFromFriends(friendId, idUser);
+        friendDbStorage.deleteFromFriends(idUser, friendId);
     }
 
     public List<User> getUserFriends(long id) {
-        return userStorage.getUserFriends(id);
+        List<User> userFriends = new ArrayList<>();
+        List<Long> friendsId = friendDbStorage.getUserFriends(id);
+        for(Long oneId : friendsId) {
+            userFriends.add(getUserById(oneId));
+        }
+        return userFriends;
     }
 
     public List<User> getCommonFriend(long id, long otherId) {
         List<User> user = getUserFriends(id);
         List<User> anotherUser = getUserFriends(otherId);
-        return user.stream().filter(x -> anotherUser.contains(x)).collect(Collectors.toList());
+        return user.stream().filter(anotherUser::contains).collect(Collectors.toList());
     }
 
-    public User getUser(long id) {
+    public User getUserById(long id) {
         return userStorage.findUserById(id);
     }
 }
