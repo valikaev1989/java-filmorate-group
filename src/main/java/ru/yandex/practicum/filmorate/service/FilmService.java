@@ -1,90 +1,91 @@
 package ru.yandex.practicum.filmorate.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exceptions.ModelNotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
-import ru.yandex.practicum.filmorate.model.MPA;
-import ru.yandex.practicum.filmorate.storage.FilmStorage;
+import ru.yandex.practicum.filmorate.storage.*;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Service
 public class FilmService {
-    private FilmStorage filmStorage;
+    private final FilmStorage filmStorage;
+    private final GenreStorage genreStorage;
+    private final MpaStorage mpaStorage;
+    private final LikesStorage likesStorage;
 
     @Autowired
-    public FilmService(@Qualifier("filmDbStorage") FilmStorage filmStorage) {
+    public FilmService(FilmStorage filmStorage,
+                       GenreStorage genreStorage,
+                       MpaStorage mpaStorage,
+                       LikesStorage likesStorage) {
         this.filmStorage = filmStorage;
-    }
-
-    public List<Film> getFilms() {
-        return filmStorage.getFilms();
+        this.genreStorage = genreStorage;
+        this.mpaStorage = mpaStorage;
+        this.likesStorage = likesStorage;
     }
 
     public Film addFilm(Film film) {
-        return filmStorage.addFilm(film);
+        long idFilm = filmStorage.addFilm(film);
+        genreStorage.addGenresToFilm(film, idFilm);
+        return getFilmById(idFilm);
     }
 
     public Film getFilmById(long id) {
-        return filmStorage.getFilmById(id);
+        Film film = filmStorage.getFilmById(id);
+        film.setLikes(likesStorage.getLikes(id));
+        film.setGenres(getGenresByFilmId(id));
+        film.setMpa(mpaStorage.getMpaByFilmId(id));
+        return film;
+    }
+
+    private Set<Genre> getGenresByFilmId(long filmId) {
+        return new HashSet<>(genreStorage.getFilmGenres(filmId));
     }
 
     public Film changeFilm(Film film) {
-        return filmStorage.changeFilm(film);
+        if (getFilms().stream().anyMatch(x -> x.getId() == film.getId())) {
+            filmStorage.changeFilm(film);
+            genreStorage.changeFilmGenres(film);
+        } else {
+            throw new ModelNotFoundException("Film not found with id " + film.getId());
+        }
+        return getFilmById(film.getId());
     }
-
     public void like(long id, long userId) {
-        filmStorage.like(id, userId);
+        likesStorage.like(id, userId);
     }
 
     public void deleteLike(long id, long userId) {
         Film film = getFilmById(id);
-        if(film.getLikes().contains(userId)) {
-            filmStorage.deleteLike(id, userId);
+        if (film.getLikes().contains(userId)) {
+            likesStorage.deleteLike(id, userId);
         } else {
             throw new ModelNotFoundException("User not found with id " + userId);
         }
+    }
 
+    public List<Film> getFilms() {
+        List<Film> films = filmStorage.getFilms();
+        for(Film film : films) {
+            film.setGenres(getGenresByFilmId(film.getId()));
+            film.setMpa(mpaStorage.getMpaByFilmId(film.getId()));
+            film.setLikes(likesStorage.getLikes(film.getId()));
+        }
+        return films;
     }
 
     public List<Film> getPopularFilms(int count) {
         List<Film> allFilms = getFilms();
         allFilms.sort((o1, o2) -> Integer.compare(o2.getLikes().size(), o1.getLikes().size()));
-        if(allFilms.size() <= count) {
+        if (allFilms.size() <= count) {
             return allFilms;
         } else {
             return allFilms.subList(0, count);
         }
-    }
-
-    public MPA getMpaById(int id) {
-        List<MPA> mpa = getAllMpa();
-        if(mpa.stream().anyMatch(x -> x.getId() == id)) {
-            return filmStorage.getMpaById(id);
-        } else {
-            throw new ModelNotFoundException("MPA not found with id " + id);
-        }
-
-    }
-
-    public List<MPA> getAllMpa() {
-        return filmStorage.getAllMpa();
-    }
-
-    public Genre getGenreById(int id) {
-        List<Genre> genres = getAllGenres();
-        if(genres.stream().anyMatch(x -> x.getId() == id)) {
-            return filmStorage.getGenreById(id);
-        } else {
-            throw new ModelNotFoundException("Genre not found with id " + id);
-        }
-
-    }
-
-    public List<Genre> getAllGenres() {
-        return filmStorage.getAllGenres();
     }
 }

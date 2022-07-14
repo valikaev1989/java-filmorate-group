@@ -1,3 +1,4 @@
+/*
 package ru.yandex.practicum.filmorate.impl;
 
 import lombok.RequiredArgsConstructor;
@@ -10,6 +11,7 @@ import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabas
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.DirtiesContext;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.storage.impl.UserDbStorage;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -149,4 +151,4 @@ public class UserDbStorageTest {
         User result = userStorage.addUser(one);
         System.out.println(result.getId());
     }
-}
+}*/

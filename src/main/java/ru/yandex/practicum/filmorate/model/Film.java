@@ -3,6 +3,7 @@ package ru.yandex.practicum.filmorate.model;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
@@ -27,10 +28,11 @@ public class Film {
 
     private LocalDate releaseDate;
 
+    @Min(1)
     private int duration;
 
     @NotNull
-    private MPA mpa;
+    private Mpa mpa;
 
     private int rate;
 
@@ -44,7 +46,7 @@ public class Film {
         this.rate = rate;
     }
 
-    public Film(Set<Long> likes, Set<Genre> genres, String name, String description, LocalDate releaseDate, int duration, MPA mpa, int rate) {
+    public Film(Set<Long> likes, Set<Genre> genres, String name, String description, LocalDate releaseDate, int duration, Mpa mpa, int rate) {
         this.likes = likes;
         this.genres = genres;
         this.name = name;

@@ -1,3 +1,4 @@
+/*
 package ru.yandex.practicum.filmorate.impl;
 
 import lombok.RequiredArgsConstructor;
@@ -12,6 +13,8 @@ import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.MPA;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.storage.impl.FilmDbStorage;
+import ru.yandex.practicum.filmorate.storage.impl.UserDbStorage;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -169,3 +172,4 @@ class FilmDbStorageTest {
         assertEquals(genres, filmDbStorage.getAllGenres());
     }
 }
+*/
