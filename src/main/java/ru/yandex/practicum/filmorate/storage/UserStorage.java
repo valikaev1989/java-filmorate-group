@@ -13,15 +13,8 @@ public interface UserStorage {
 
     User changeUSer(User user);
 
-    boolean isValid(User user);
-
-    User findUserById(int id);
-
-    void addFriendToUser(long idUser, long idFriend);
-
-    void deleteFromFriends(long idUser, long idFriend);
+    User findUserById(long id);
 
     List<User> getUserFriends(long id);
 
-    User getUser(long id);
 }
