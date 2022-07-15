@@ -26,6 +26,7 @@ public class Film {
     @Size(min = 1, max = 200, message = "Description cannot be more then 200 symbol")
     private String description;
 
+    @NotNull
     private LocalDate releaseDate;
 
     @Min(1)

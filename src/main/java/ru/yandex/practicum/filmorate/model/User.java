@@ -25,7 +25,6 @@ public class User {
     private String email;
 
     @NotBlank(message = "Login cannot be blank")
-    @NotEmpty(message = "Login cannot be empty")
     private String login;
 
     private String name;
