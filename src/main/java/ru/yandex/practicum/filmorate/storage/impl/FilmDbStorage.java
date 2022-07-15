@@ -8,6 +8,7 @@ import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exceptions.ModelAlreadyExistException;
 import ru.yandex.practicum.filmorate.exceptions.ModelNotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.Mpa;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
 
 import java.sql.ResultSet;
@@ -65,12 +66,28 @@ public class FilmDbStorage implements FilmStorage {
     @Override
     public Film getFilmById(long id) {
         try {
-            String sql = "select * from film where film_id = ?";
-            return jdbcTemplate.queryForObject(sql, this::mapRowToFilm, id);
+            String sqlFilm = "select * from film where film_id = ?";
+            Film film = jdbcTemplate.queryForObject(sqlFilm, this::mapRowToFilm, id);
+            film.setMpa(getMpa(id));
+            return film;
         } catch (EmptyResultDataAccessException ex) {
             throw new ModelNotFoundException("Film wasn't found");
         }
+    }
 
+    private Mpa getMpa(long id) {
+        String sqlMpa = "select * " +
+                "from mpa " +
+                "left join FILM F on MPA.MPA_ID = F.MPA_ID " +
+                "where film_id = ?";
+        return jdbcTemplate.queryForObject(
+                sqlMpa,
+                (rs, rowNum) ->
+                        new Mpa(
+                                rs.getInt("mpa_id"),
+                                rs.getString("mpa_name")
+                        ), id
+        );
     }
 
     private Film mapRowToFilm(ResultSet resultSet, int rowNum) throws SQLException {
@@ -82,6 +99,7 @@ public class FilmDbStorage implements FilmStorage {
         int rate = resultSet.getInt("rate");
         Film film = new Film(name, description, releaseDate, duration, rate);
         film.setId(idFilm);
+        film.setMpa(getMpa(idFilm));
         return film;
     }
 }

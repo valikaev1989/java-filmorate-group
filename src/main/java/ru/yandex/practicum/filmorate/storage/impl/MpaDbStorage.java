@@ -13,7 +13,7 @@ import java.util.List;
 @Component
 public class MpaDbStorage implements MpaStorage {
 
-    JdbcTemplate jdbcTemplate;
+    private final JdbcTemplate jdbcTemplate;
 
     @Autowired
     public MpaDbStorage(JdbcTemplate jdbcTemplate) {
@@ -34,16 +34,6 @@ public class MpaDbStorage implements MpaStorage {
         String sql = "SELECT * FROM mpa";
         return jdbcTemplate.query(sql, this::mapRowToMpa);
     }
-
-    @Override
-    public Mpa getMpaByFilmId(long filmId) {
-        String sql = "SELECT mpa.mpa_id, mpa.mpa_name " +
-                "FROM mpa " +
-                "LEFT JOIN film ON mpa.mpa_id = film.mpa_id " +
-                "WHERE film.film_id = ?";
-        return jdbcTemplate.queryForObject(sql, this::mapRowToMpa, filmId);
-    }
-
 
     private Mpa mapRowToMpa(ResultSet resultSet, int i) throws SQLException {
         int idMpa = resultSet.getInt("mpa_id");

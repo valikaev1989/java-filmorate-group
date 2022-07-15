@@ -31,8 +31,12 @@ public class FilmController {
 
     @PostMapping("/films")
     public Film addFilm(@Valid @RequestBody Film film) throws ValidationException {
-        log.info(String.format("Film %s was added", film.getName()));
-        return filmService.addFilm(film);
+        if (filmService.checkDate(film)) {
+            log.info(String.format("Film %s was added", film.getName()));
+            return filmService.addFilm(film);
+        } else {
+            throw new ValidationException("Wrong release date");
+        }
     }
 
     @GetMapping("/films/{id}")
@@ -43,8 +47,12 @@ public class FilmController {
 
     @PutMapping("/films")
     public Film changeFilm(@Valid @RequestBody Film film) throws ValidationException {
-        log.info(String.format("Film %d was changed", film.getId()));
-        return filmService.changeFilm(film);
+        if (filmService.checkDate(film)) {
+            log.info(String.format("Film %d was changed", film.getId()));
+            return filmService.changeFilm(film);
+        } else {
+            throw new ValidationException("Wrong release date");
+        }
     }
 
     @PutMapping("/films/{id}/like/{userId}")

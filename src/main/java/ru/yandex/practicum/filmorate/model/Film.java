@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.model;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -14,6 +15,7 @@ import java.util.Map;
 import java.util.Set;
 
 @Data
+@AllArgsConstructor
 public class Film {
     @EqualsAndHashCode.Exclude
     private long id;
@@ -39,22 +41,21 @@ public class Film {
 
     public Film() {}
 
-    public Film(String name, String description, LocalDate releaseDate, int duration, int rate) {
+    public Film(long id, String name, String description, LocalDate releaseDate, int duration, int rate, Mpa mpa) {
+        this.id = id;
         this.name = name;
         this.description = description;
         this.releaseDate = releaseDate;
         this.duration = duration;
         this.rate = rate;
+        this.mpa = mpa;
     }
 
-    public Film(Set<Long> likes, Set<Genre> genres, String name, String description, LocalDate releaseDate, int duration, Mpa mpa, int rate) {
-        this.likes = likes;
-        this.genres = genres;
+    public Film(String name, String description, LocalDate releaseDate, int duration, int rate) {
         this.name = name;
         this.description = description;
         this.releaseDate = releaseDate;
         this.duration = duration;
-        this.mpa = mpa;
         this.rate = rate;
     }
 

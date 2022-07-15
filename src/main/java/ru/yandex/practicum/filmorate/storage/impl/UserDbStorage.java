@@ -35,14 +35,13 @@ public class UserDbStorage implements UserStorage {
     @Override
     public User addUser(User user) {
         List<User> users = getAllUsers();
-        User checkedUser = checkName(user);
         if(users.contains(user)) {
             throw new ModelAlreadyExistException("User already exist");
         } else {
             SimpleJdbcInsert insert = new SimpleJdbcInsert(jdbcTemplate)
                     .withTableName("userr")
                     .usingGeneratedKeyColumns("user_id");
-            long id = insert.executeAndReturnKey(checkedUser.toMap()).longValue();
+            long id = insert.executeAndReturnKey(user.toMap()).longValue();
             return findUserById(id);
         }
     }
@@ -102,13 +101,6 @@ public class UserDbStorage implements UserStorage {
     public boolean deleteAllUsers() {
         String sql = "delete from userr";
         return jdbcTemplate.update(sql) > 0;
-    }
-
-    private User checkName(User user) {
-        if (user.getName().isEmpty() || user.getName() == null) {
-            user.setName(user.getLogin());
-        }
-        return user;
     }
 
     private User mapRowToUser(ResultSet resultSet, int rowNum) throws SQLException {
