@@ -59,38 +59,22 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public List<Film> getFilms() {
-        String sql = "select * from film";
-        return jdbcTemplate.query(sql, this::mapRowToFilm);
+        //String sql = "select * from film";
+        String sql = "select * from FILM f, MPA m where f.MPA_ID = m.MPA_ID";
+        return jdbcTemplate.query(sql, FilmDbStorage::mapRowToFilm);
     }
 
     @Override
     public Film getFilmById(long id) {
         try {
-            String sqlFilm = "select * from film where film_id = ?";
-            Film film = jdbcTemplate.queryForObject(sqlFilm, this::mapRowToFilm, id);
-            film.setMpa(getMpa(id));
-            return film;
+            String sqlFilm = "select * from FILM f, MPA m where f.MPA_ID = m.MPA_ID AND FILM_ID = ?";
+            return jdbcTemplate.queryForObject(sqlFilm, FilmDbStorage::mapRowToFilm, id);
         } catch (EmptyResultDataAccessException ex) {
             throw new ModelNotFoundException("Film wasn't found");
         }
     }
 
-    private Mpa getMpa(long id) {
-        String sqlMpa = "select * " +
-                "from mpa " +
-                "left join FILM F on MPA.MPA_ID = F.MPA_ID " +
-                "where film_id = ?";
-        return jdbcTemplate.queryForObject(
-                sqlMpa,
-                (rs, rowNum) ->
-                        new Mpa(
-                                rs.getInt("mpa_id"),
-                                rs.getString("mpa_name")
-                        ), id
-        );
-    }
-
-    private Film mapRowToFilm(ResultSet resultSet, int rowNum) throws SQLException {
+    public static Film mapRowToFilm(ResultSet resultSet, int rowNum) throws SQLException {
         int idFilm = resultSet.getInt("film_id");
         String name = resultSet.getString("film_name");
         String description = resultSet.getString("description");
@@ -99,7 +83,8 @@ public class FilmDbStorage implements FilmStorage {
         int rate = resultSet.getInt("rate");
         Film film = new Film(name, description, releaseDate, duration, rate);
         film.setId(idFilm);
-        film.setMpa(getMpa(idFilm));
+        //film.setMpa(getMpa(idFilm));
+        film.setMpa(new Mpa(resultSet.getInt("MPA.mpa_id"), resultSet.getString("MPA.mpa_name")));
         return film;
     }
 }

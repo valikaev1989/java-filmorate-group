@@ -4,7 +4,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.model.Mpa;
 import ru.yandex.practicum.filmorate.storage.LikesStorage;
 
 import java.sql.ResultSet;
@@ -24,16 +23,18 @@ public class LikesDbStorage implements LikesStorage {
     }
 
     @Override
-    public void like(long filmId, long userId) {
+    public void like(long id, long userId) {
         String sql = "INSERT INTO likes(film_id, user_id)" +
                 "VALUES(?, ?)";
-        jdbcTemplate.update(sql, filmId, userId);
+        jdbcTemplate.update(sql, id, userId);
+        updateRate(id);
     }
 
     @Override
     public void deleteLike(long filmId, long userId) {
         String sql = "DELETE FROM likes WHERE film_id = ? AND user_id = ?";
         jdbcTemplate.update(sql, filmId, userId);
+        updateRate(filmId);
     }
 
     @Override
@@ -41,47 +42,30 @@ public class LikesDbStorage implements LikesStorage {
         String sql = "SELECT user_id " +
                 "FROM likes " +
                 "WHERE film_id = ?";
-        List<Long> likes = jdbcTemplate.query(sql, this::mapRowToLong, filmId);
+        List<Long> likes = jdbcTemplate.query(sql, LikesDbStorage::mapRowToLong, filmId);
         return new HashSet<>(likes);
     }
 
     @Override
     public List<Film> getPopularFilms(int count) {
-        String sql = "select f.FILM_ID, f.RELEASE_DATE, f.RATE, f.DESCRIPTION, f.DURATION_FILM, f.FILM_NAME, f.MPA_ID, count(USER_ID) " +
+        String sql = "select f.FILM_ID, f.RELEASE_DATE, f.RATE, f.DESCRIPTION, f.DURATION_FILM, f.FILM_NAME, MPA.MPA_ID, MPA.MPA_NAME, count(USER_ID) " +
                 "from FILM as f " +
                 "left join LIKES L on F.FILM_ID = L.FILM_ID " +
-                "group by f.FILM_ID, f.RELEASE_DATE, f.RATE, f.DESCRIPTION, f.DURATION_FILM, f.FILM_NAME, f.MPA_ID " +
+                "left join MPA on f.MPA_ID = MPA.MPA_ID " +
+                "group by f.FILM_ID, f.RELEASE_DATE, f.RATE, f.DESCRIPTION, f.DURATION_FILM, f.FILM_NAME, f.MPA_ID, MPA.MPA_NAME " +
                 "order by count(l.USER_ID) desc " +
                 "limit ?";
-        return jdbcTemplate.query(sql,
-                (rs, numRow) ->
-                        new Film(
-                                rs.getLong("film_id"),
-                                rs.getString("film_name"),
-                                rs.getString("description"),
-                                rs.getDate("release_date").toLocalDate(),
-                                rs.getInt("duration_film"),
-                                rs.getInt("rate"),
-                                getMpa(rs.getLong("film_id"))
-                        ), count
-                );
+        //String sql = "select * from FILM f, MPA m where f.MPA_ID = m.MPA_ID order by RATE desc limit ?";
+        return jdbcTemplate.query(sql, FilmDbStorage::mapRowToFilm, count);
     }
 
-    private Mpa getMpa(long filmId){
-        String sql = "select * " +
-                "from mpa " +
-                "left join FILM F on MPA.MPA_ID = F.MPA_ID " +
-                "where film_id = ?";
-        return jdbcTemplate.queryForObject(sql, new Object[]{filmId}, (rs, rowNum) ->
-                new Mpa(
-                        rs.getInt("mpa_id"),
-                        rs.getString("mpa_name")
-                        )
-
-        );
-    }
-
-    private long mapRowToLong(ResultSet resultSet, int rowNum) throws SQLException {
+    private static long mapRowToLong(ResultSet resultSet, int rowNum) throws SQLException {
         return resultSet.getLong("user_id");
+    }
+
+    private void updateRate(long filmId) {
+        String sql = "update FILM f set rate = (select count(l.user_id) " +
+                "from LIKES l where l.film_id = f.film_id) where film_id = ?";
+        jdbcTemplate.update(sql, filmId);
     }
 }

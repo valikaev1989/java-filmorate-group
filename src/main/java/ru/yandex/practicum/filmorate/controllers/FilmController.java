@@ -12,7 +12,6 @@ import javax.validation.Valid;
 import java.util.List;
 
 @RestController
-//@RequestMapping("/films")
 @Slf4j
 @Validated
 public class FilmController {
