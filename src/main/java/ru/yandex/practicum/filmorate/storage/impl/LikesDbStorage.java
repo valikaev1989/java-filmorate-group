@@ -63,7 +63,7 @@ public class LikesDbStorage implements LikesStorage {
         return resultSet.getLong("user_id");
     }
 
-    private void updateRate(long filmId) {
+    public void updateRate(long filmId) {
         String sql = "update FILM f set rate = (select count(l.user_id) " +
                 "from LIKES l where l.film_id = f.film_id) where film_id = ?";
         jdbcTemplate.update(sql, filmId);

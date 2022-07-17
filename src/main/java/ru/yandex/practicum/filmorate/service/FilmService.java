@@ -30,6 +30,7 @@ public class FilmService {
     public Film addFilm(Film film) {
         long idFilm = filmStorage.addFilm(film);
         genreStorage.addGenresToFilm(film, idFilm);
+        likesStorage.updateRate(film.getId());
         return getFilmById(idFilm);
     }
 

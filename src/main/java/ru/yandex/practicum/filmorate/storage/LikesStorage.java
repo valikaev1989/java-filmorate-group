@@ -13,4 +13,6 @@ public interface LikesStorage {
     Set<Long> getLikes(long filmId);
 
     List<Film> getPopularFilms(int count);
+
+    public void updateRate(long filmId);
 }
