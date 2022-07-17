@@ -27,10 +27,12 @@ public class FilmService {
         this.likesStorage = likesStorage;
     }
 
+    //если б rate для этого создали, то на входи не поступали бы фильмы с rate = 4
+    //и их не пришлось бы обнулять
     public Film addFilm(Film film) {
         long idFilm = filmStorage.addFilm(film);
         genreStorage.addGenresToFilm(film, idFilm);
-        likesStorage.updateRate(film.getId());
+        //likesStorage.updateRate(film.getId());
         return getFilmById(idFilm);
     }
 

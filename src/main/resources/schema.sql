@@ -20,23 +20,10 @@ CREATE TABLE IF NOT EXISTS mpa(
     PRIMARY KEY (mpa_id)
 );
 
-/*INSERT INTO MPA(mpa_id, mpa_name) VALUES ( 1, 'G' );
-INSERT INTO MPA(mpa_id, mpa_name) VALUES ( 2, 'PG' );
-INSERT INTO MPA(mpa_id, mpa_name) VALUES ( 3, 'PG-13' );
-INSERT INTO MPA(mpa_id, mpa_name) VALUES ( 4, 'R' );
-INSERT INTO MPA(mpa_id, mpa_name) VALUES ( 5, 'NC-17' );*/
-
-
-/*ALTER TABLE IF EXISTS rating
-        ADD FOREIGN KEY (rating_id) REFERENCES film;*/
-
-/*ALTER TABLE IF EXISTS film
-    ADD FOREIGN KEY (rating_id) REFERENCES rating(rating_id) ON DELETE CASCADE;*/
-
-CREATE TABLE IF NOT EXISTS genre_and_film (
-    genre_id INTEGER NOT NULL REFERENCES genre (genre_id),
-    film_id INTEGER REFERENCES film (film_id),
-    PRIMARY KEY (genre_id)
+create table if not exists genre_and_film (
+    film_id     int references film(film_id),
+    genre_id    int references genre(genre_id),
+    PRIMARY KEY (film_id,genre_id)
 );
 
 CREATE TABLE IF NOT EXISTS userr(

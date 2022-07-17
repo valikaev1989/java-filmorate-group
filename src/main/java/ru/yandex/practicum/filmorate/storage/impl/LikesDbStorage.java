@@ -46,6 +46,7 @@ public class LikesDbStorage implements LikesStorage {
         return new HashSet<>(likes);
     }
 
+    //именно из за этой закомментированной строки ниже и получилось что у тебя тесты не падали на выводе пополярных фильмов
     @Override
     public List<Film> getPopularFilms(int count) {
         String sql = "select f.FILM_ID, f.RELEASE_DATE, f.RATE, f.DESCRIPTION, f.DURATION_FILM, f.FILM_NAME, MPA.MPA_ID, MPA.MPA_NAME, count(USER_ID) " +
