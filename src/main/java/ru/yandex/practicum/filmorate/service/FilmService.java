@@ -7,6 +7,7 @@ import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.storage.*;
 
+import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -15,23 +16,23 @@ import java.util.Set;
 public class FilmService {
     private final FilmStorage filmStorage;
     private final GenreStorage genreStorage;
-    private final MpaStorage mpaStorage;
     private final LikesStorage likesStorage;
 
     @Autowired
     public FilmService(FilmStorage filmStorage,
                        GenreStorage genreStorage,
-                       MpaStorage mpaStorage,
                        LikesStorage likesStorage) {
         this.filmStorage = filmStorage;
         this.genreStorage = genreStorage;
-        this.mpaStorage = mpaStorage;
         this.likesStorage = likesStorage;
     }
 
+    //если б rate для этого создали, то на входи не поступали бы фильмы с rate = 4
+    //и их не пришлось бы обнулять
     public Film addFilm(Film film) {
         long idFilm = filmStorage.addFilm(film);
         genreStorage.addGenresToFilm(film, idFilm);
+        //likesStorage.updateRate(film.getId());
         return getFilmById(idFilm);
     }
 
@@ -39,7 +40,6 @@ public class FilmService {
         Film film = filmStorage.getFilmById(id);
         film.setLikes(likesStorage.getLikes(id));
         film.setGenres(getGenresByFilmId(id));
-        film.setMpa(mpaStorage.getMpaByFilmId(id));
         return film;
     }
 
@@ -73,19 +73,16 @@ public class FilmService {
         List<Film> films = filmStorage.getFilms();
         for(Film film : films) {
             film.setGenres(getGenresByFilmId(film.getId()));
-            film.setMpa(mpaStorage.getMpaByFilmId(film.getId()));
             film.setLikes(likesStorage.getLikes(film.getId()));
         }
         return films;
     }
 
     public List<Film> getPopularFilms(int count) {
-        List<Film> allFilms = getFilms();
-        allFilms.sort((o1, o2) -> Integer.compare(o2.getLikes().size(), o1.getLikes().size()));
-        if (allFilms.size() <= count) {
-            return allFilms;
-        } else {
-            return allFilms.subList(0, count);
-        }
+        return likesStorage.getPopularFilms(count);
+    }
+
+    public boolean checkDate(Film film) {
+        return film.getReleaseDate().isAfter(LocalDate.of(1895, 12, 28));
     }
 }

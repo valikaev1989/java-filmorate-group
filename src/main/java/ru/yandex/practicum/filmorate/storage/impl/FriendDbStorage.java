@@ -11,7 +11,7 @@ import java.util.List;
 
 @Component
 public class FriendDbStorage implements FriendStorage {
-    JdbcTemplate jdbcTemplate;
+    private final JdbcTemplate jdbcTemplate;
 
     @Autowired
     public FriendDbStorage(JdbcTemplate jdbcTemplate) {

@@ -30,7 +30,7 @@ public class UserController {
 
     @PostMapping
     public User addUser(@Valid @RequestBody User user) {
-        User result = userService.addUser(user);
+        User result = userService.addUser(userService.checkName(user));
         log.info("User was added " + result.getName());
         return result;
     }
@@ -38,7 +38,7 @@ public class UserController {
     @PutMapping
     public User changeUser(@Valid @RequestBody User user) {
         log.info("User was changed " + user.getName() + " " + user.getId());
-        return userService.changeUser(user);
+        return userService.changeUser(userService.checkName(user));
     }
 
     @PutMapping("/{id}/friends/{friendId}")

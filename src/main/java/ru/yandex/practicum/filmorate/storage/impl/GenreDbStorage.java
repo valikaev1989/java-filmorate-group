@@ -14,7 +14,7 @@ import java.util.Set;
 
 @Component
 public class GenreDbStorage implements GenreStorage {
-    JdbcTemplate jdbcTemplate;
+    private final JdbcTemplate jdbcTemplate;
 
     @Autowired
     public GenreDbStorage(JdbcTemplate jdbcTemplate) {

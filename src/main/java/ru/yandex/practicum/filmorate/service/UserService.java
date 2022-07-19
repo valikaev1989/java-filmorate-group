@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exceptions.ModelNotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.storage.FriendStorage;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
 import ru.yandex.practicum.filmorate.storage.impl.FriendDbStorage;
 
@@ -16,12 +17,12 @@ import java.util.stream.Collectors;
 public class UserService {
 
     private final UserStorage userStorage;
-    private final FriendDbStorage friendDbStorage;
+    private final FriendStorage friendStorage;
 
     @Autowired
-    public UserService(UserStorage userStorage, FriendDbStorage friendDbStorage) {
+    public UserService(UserStorage userStorage, FriendDbStorage friendStorage) {
         this.userStorage = userStorage;
-        this.friendDbStorage = friendDbStorage;
+        this.friendStorage = friendStorage;
     }
 
     public List<User> getAllUsers() {
@@ -43,17 +44,17 @@ public class UserService {
         if(!users.contains(user) && users.contains(friendUser)) {
             throw new ModelNotFoundException("User not found");
         } else {
-            friendDbStorage.addFriendToUser(userId, friendId);
+            friendStorage.addFriendToUser(userId, friendId);
         }
     }
 
     public void deleteFromFriend(long idUser, long friendId) {
-        friendDbStorage.deleteFromFriends(idUser, friendId);
+        friendStorage.deleteFromFriends(idUser, friendId);
     }
 
     public List<User> getUserFriends(long id) {
         List<User> userFriends = new ArrayList<>();
-        List<Long> friendsId = friendDbStorage.getUserFriends(id);
+        List<Long> friendsId = friendStorage.getUserFriends(id);
         for(Long oneId : friendsId) {
             userFriends.add(getUserById(oneId));
         }
@@ -68,5 +69,12 @@ public class UserService {
 
     public User getUserById(long id) {
         return userStorage.findUserById(id);
+    }
+
+    public User checkName(User user) {
+        if(user.getName() == null || user.getName().isBlank()) {
+            user.setName(user.getLogin());
+        }
+        return user;
     }
 }
