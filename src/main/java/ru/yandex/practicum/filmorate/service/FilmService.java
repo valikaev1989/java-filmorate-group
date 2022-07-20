@@ -55,6 +55,15 @@ public class FilmService {
         return film;
     }
 
+    public List<Film> getFilmsByIds(List<Long> ids) {
+        List<Film> films = filmStorage.getFilms(ids);
+        films.forEach(film -> {
+                    film.setLikes(likesStorage.getLikes(film.getId()));
+                    film.setGenres(getGenresByFilmId(film.getId()));
+                });
+        return films;
+    }
+
     private Set<Genre> getGenresByFilmId(long filmId) {
         return new HashSet<>(genreStorage.getFilmGenres(filmId));
     }
