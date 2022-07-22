@@ -1,8 +1,10 @@
 package ru.yandex.practicum.filmorate.service;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exceptions.ModelNotFoundException;
+import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.storage.*;
@@ -12,19 +14,21 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+@Slf4j
 @Service
 public class FilmService {
     private final FilmStorage filmStorage;
     private final GenreStorage genreStorage;
     private final LikesStorage likesStorage;
+    private final DirectorService directorsStorage;
 
     @Autowired
-    public FilmService(FilmStorage filmStorage,
-                       GenreStorage genreStorage,
-                       LikesStorage likesStorage) {
+    public FilmService(FilmStorage filmStorage, GenreStorage genreStorage,
+                       LikesStorage likesStorage, DirectorService directorsStorage) {
         this.filmStorage = filmStorage;
         this.genreStorage = genreStorage;
         this.likesStorage = likesStorage;
+        this.directorsStorage = directorsStorage;
     }
 
     //если б rate для этого создали, то на входи не поступали бы фильмы с rate = 4
@@ -32,6 +36,8 @@ public class FilmService {
     public Film addFilm(Film film) {
         long idFilm = filmStorage.addFilm(film);
         genreStorage.addGenresToFilm(film, idFilm);
+        film.setId(idFilm);
+        addDirectorInFilm(film);
         //likesStorage.updateRate(film.getId());
         return getFilmById(idFilm);
     }
@@ -40,6 +46,7 @@ public class FilmService {
         Film film = filmStorage.getFilmById(id);
         film.setLikes(likesStorage.getLikes(id));
         film.setGenres(getGenresByFilmId(id));
+        film.setDirectors(directorsStorage.getDirectorsFromFilm(id));
         return film;
     }
 
@@ -51,11 +58,17 @@ public class FilmService {
         if (getFilms().stream().anyMatch(x -> x.getId() == film.getId())) {
             filmStorage.changeFilm(film);
             genreStorage.changeFilmGenres(film);
+            if (!film.getDirectors().isEmpty()) {
+                addDirectorInFilm(film);
+            } else {
+                deleteDirectorsFromFilm(film.getId());
+            }
         } else {
             throw new ModelNotFoundException("Film not found with id " + film.getId());
         }
         return getFilmById(film.getId());
     }
+
     public void like(long id, long userId) {
         likesStorage.like(id, userId);
     }
@@ -71,9 +84,10 @@ public class FilmService {
 
     public List<Film> getFilms() {
         List<Film> films = filmStorage.getFilms();
-        for(Film film : films) {
+        for (Film film : films) {
             film.setGenres(getGenresByFilmId(film.getId()));
             film.setLikes(likesStorage.getLikes(film.getId()));
+            film.setDirectors(directorsStorage.getDirectorsFromFilm(film.getId()));
         }
         return films;
     }
@@ -84,5 +98,45 @@ public class FilmService {
 
     public boolean checkDate(Film film) {
         return film.getReleaseDate().isAfter(LocalDate.of(1895, 12, 28));
+    }
+
+
+    public void updateDirectorInFilm(long filmId, long directorId) {
+        log.info("Start filmService. Метод updateDirectorInFilm. directorId:{},  filmId{}.", directorId, filmId);
+        Film film = filmStorage.getFilmById(filmId);
+        directorsStorage.addDirectorToFilm(film, directorId);
+    }
+
+    public void deleteDirectorInFilm(long filmId, long directorId) {
+        log.info("Start filmService. Метод deleteDirectorInFilm. directorId:{},  filmId{}.", directorId, filmId);
+        directorsStorage.deleteDirectorFromFilm(filmId, directorId);
+    }
+
+    private void addDirectorInFilm(Film film) {
+        log.info("Start filmService. Метод addDirectorInFilm. film:{}.", film);
+        List<Director> directors = film.getDirectors();
+        for (Director director : directors) {
+            directorsStorage.addDirectorToFilm(film, director.getId());
+        }
+    }
+
+    public List<Film> getSortFilmByDirector(Long directorId, String parameter) {
+        log.info("Start filmService. Метод getSortFilmByDirector. directorId:{}, parameter:{}.", directorId,parameter);
+        List<Film> films = filmStorage.getSortFilmByDirector(directorId, parameter);
+        System.out.println(films);
+        for (Film film : films) {
+            film.setGenres(getGenresByFilmId(film.getId()));
+            film.setLikes(likesStorage.getLikes(film.getId()));
+            film.setDirectors(directorsStorage.getDirectorsFromFilm(film.getId()));
+        }
+        return films;
+    }
+
+    private void deleteDirectorsFromFilm(Long filmId) {
+        log.info("Start filmService. Метод deleteDirectorsFromFilm. filmId:{}.", filmId);
+        Film film = getFilmById(filmId);
+        for (Director director : film.getDirectors()) {
+            directorsStorage.deleteDirectorFromFilm(filmId, director.getId());
+        }
     }
 }

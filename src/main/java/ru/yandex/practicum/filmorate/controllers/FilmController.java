@@ -71,4 +71,23 @@ public class FilmController {
         log.info("Get popular films");
         return filmService.getPopularFilms(count);
     }
+
+    @GetMapping("/films/director/{directorId}")
+    public List<Film> getSortFilmByDirector(@PathVariable long directorId,
+                                            @RequestParam String sortBy) {
+        log.info("Получен запрос к эндпоинту /films/director/{id}. Метод GET");
+        return filmService.getSortFilmByDirector(directorId, sortBy);
+    }
+
+    @PutMapping("/films{filmId}/directors/{directorId}")
+    public void addDirectorsInFilm(@PathVariable long filmId, @PathVariable long directorId) {
+        log.info("Получен запрос к эндпоинту /films{id}/director/{id}. Метод PUT");
+        filmService.updateDirectorInFilm(filmId, directorId);
+    }
+
+    @DeleteMapping("/films{filmId}/directors/{directorId}")
+    public void deleteDirectorsFromFilm(@PathVariable long filmId, @PathVariable long directorId) {
+        log.info("Получен запрос к эндпоинту /films{id}/director/{id}. Метод DELETE");
+        filmService.deleteDirectorInFilm(filmId, directorId);
+    }
 }
