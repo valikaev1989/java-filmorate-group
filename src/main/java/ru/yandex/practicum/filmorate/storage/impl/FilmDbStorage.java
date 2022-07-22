@@ -89,8 +89,8 @@ public class FilmDbStorage implements FilmStorage {
 
     public List<Film> getPopularFilmsSharedWithFriend(long userId, long friendId) {
         String sql = "SELECT *\n" +
-                "FROM film\n" +
-                "WHERE film_id IN (select FILM_ID\n" +
+                "FROM film f, MPA m\n" +
+                "WHERE  f.MPA_ID = m.MPA_ID AND film_id IN (select FILM_ID\n" +
                 "                  from LIKES\n" +
                 "                  WHERE film_id IN (SELECT film_id\n" +
                 "                                    FROM likes\n" +
