@@ -32,7 +32,6 @@ public class ReviewDbStorage implements ReviewStorage {
         } else {
             throw new ModelNotFoundException("Model not found");
         }
-
     }
 
     @Override
@@ -92,10 +91,9 @@ public class ReviewDbStorage implements ReviewStorage {
     }
 
     private int calculateUseful(long reviewId) {
-        String sql = "select count(*) from review_likes where review_id = ? and is_like = ?";
-        int likes = jdbcTemplate.queryForObject(sql, Integer.class, reviewId, true);
-        int disLike = jdbcTemplate.queryForObject(sql, Integer.class, reviewId, false);
-        return likes - disLike;
+        String sqlQuery = "SELECT (SELECT COUNT (*) FROM review_likes WHERE review_id = ? AND is_like) " +
+                "- (SELECT COUNT (*) FROM review_likes WHERE review_id = ? AND NOT is_like)";
+        return jdbcTemplate.queryForObject(sqlQuery, Integer.class, reviewId, reviewId);
     }
 
     public static Review mapRowToReview(ResultSet resultSet, int rowNum) throws SQLException {
