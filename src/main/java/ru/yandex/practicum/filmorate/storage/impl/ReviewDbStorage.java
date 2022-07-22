@@ -4,14 +4,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Component;
-import ru.yandex.practicum.filmorate.exceptions.ModelNotFoundException;
 import ru.yandex.practicum.filmorate.model.Review;
 import ru.yandex.practicum.filmorate.storage.ReviewStorage;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
-import java.util.Optional;
 
 @Component
 public class ReviewDbStorage implements ReviewStorage {
@@ -24,14 +22,10 @@ public class ReviewDbStorage implements ReviewStorage {
 
     @Override
     public long addReview(Review review) {
-        if (checkExistingUser(review.getUserId()) && checkExistingFilm(review.getFilmId())) {
-            SimpleJdbcInsert insert = new SimpleJdbcInsert(jdbcTemplate)
-                    .withTableName("reviews")
-                    .usingGeneratedKeyColumns("review_id");
-            return insert.executeAndReturnKey(review.toMap()).longValue();
-        } else {
-            throw new ModelNotFoundException("Model not found");
-        }
+        SimpleJdbcInsert insert = new SimpleJdbcInsert(jdbcTemplate)
+                .withTableName("reviews")
+                .usingGeneratedKeyColumns("review_id");
+        return insert.executeAndReturnKey(review.toMap()).longValue();
     }
 
     @Override
@@ -51,23 +45,26 @@ public class ReviewDbStorage implements ReviewStorage {
 
     @Override
     public Review getReviewById(long id) {
-        if (checkExistingReview(id)) {
-            String sql = "select * from reviews where review_id = ?";
-            return jdbcTemplate.queryForObject(sql, ReviewDbStorage::mapRowToReview, id);
-        } else {
-            throw new ModelNotFoundException("Review not found");
-        }
+        String sql = "select * from reviews where review_id = ?";
+        return jdbcTemplate.queryForObject(sql, ReviewDbStorage::mapRowToReview, id);
     }
 
     @Override
-    public List<Review> getReviewByFilmId(Optional<Long> filmId, int count) {
-        if (filmId.isPresent()) {
-            String sql = "select * from reviews where film_id = ? limit ?";
-            return jdbcTemplate.query(sql, ReviewDbStorage::mapRowToReview, filmId.get(), count);
-        } else {
-            String sql = "select * from reviews limit ?";
-            return jdbcTemplate.query(sql, ReviewDbStorage::mapRowToReview, count);
-        }
+    public List<Review> getReviewByFilmId(long filmId, int count) {
+        String sql = "select * from reviews where film_id = ? limit ?";
+        return jdbcTemplate.query(sql, ReviewDbStorage::mapRowToReview, filmId, count);
+    }
+
+    @Override
+    public List<Review> getCountReview(int count) {
+        String sql = "select * from reviews limit ?";
+        return jdbcTemplate.query(sql, ReviewDbStorage::mapRowToReview, count);
+    }
+
+    @Override
+    public List<Review> getAllReview() {
+        String sql = "select * from reviews";
+        return jdbcTemplate.query(sql, ReviewDbStorage::mapRowToReview);
     }
 
     @Override
@@ -104,20 +101,5 @@ public class ReviewDbStorage implements ReviewStorage {
         long filmId = resultSet.getLong("film_id");
         int useful = resultSet.getInt("useful");
         return new Review(id, content, isPositive, userId, filmId, useful);
-    }
-
-    private boolean checkExistingFilm(long id) {
-        String sql = "SELECT EXISTS(SELECT * FROM FILM WHERE film_id = ?)";
-        return jdbcTemplate.queryForObject(sql, Boolean.class, id);
-    }
-
-    private boolean checkExistingUser(long id) {
-        String sql = "select exists(select * from userr where user_id = ?)";
-        return jdbcTemplate.queryForObject(sql, Boolean.class, id);
-    }
-
-    private boolean checkExistingReview(long id) {
-        String sql = "select exists(select * from REVIEWS where REVIEW_ID = ?)";
-        return jdbcTemplate.queryForObject(sql, Boolean.class, id);
     }
 }

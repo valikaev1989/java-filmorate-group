@@ -2,8 +2,13 @@ package ru.yandex.practicum.filmorate.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.exceptions.ModelNotFoundException;
+import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Review;
+import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.storage.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.ReviewStorage;
+import ru.yandex.practicum.filmorate.storage.UserStorage;
 
 import java.util.List;
 import java.util.Optional;
@@ -12,15 +17,25 @@ import java.util.Optional;
 public class ReviewService {
     ReviewStorage reviewStorage;
 
+    UserStorage userStorage;
+
+    FilmStorage filmStorage;
+
     @Autowired
-    public ReviewService(ReviewStorage reviewStorage) {
+    public ReviewService(ReviewStorage reviewStorage, UserStorage userStorage, FilmStorage filmStorage) {
         this.reviewStorage = reviewStorage;
+        this.userStorage = userStorage;
+        this.filmStorage = filmStorage;
     }
 
     public Review addReview(Review review) {
-        long id = reviewStorage.addReview(review);
-        review.setReviewId(id);
-        return review;
+        if (isExistFilm(review.getFilmId()) && isExistUser(review.getUserId())) {
+            long id = reviewStorage.addReview(review);
+            review.setReviewId(id);
+            return review;
+        } else {
+            throw new ModelNotFoundException("Model not found");
+        }
     }
 
     public Review changeReview(Review review) {
@@ -33,11 +48,22 @@ public class ReviewService {
     }
 
     public Review getReviewById(long id) {
-        return reviewStorage.getReviewById(id);
+        //return reviewStorage.getReviewById(id);
+
+        if (reviewStorage.getAllReview().stream().anyMatch(x -> x.getReviewId() == id)) {
+            return reviewStorage.getReviewById(id);
+        } else {
+            throw new ModelNotFoundException("Model not found");
+        }
     }
 
     public List<Review> getReviewByFilmId(Optional<Long> filmId, int count) {
-        List<Review> allReviews = reviewStorage.getReviewByFilmId(filmId, count);
+        List<Review> allReviews;
+        if (filmId.isPresent()) {
+            allReviews = reviewStorage.getReviewByFilmId(filmId.get(), count);
+        } else {
+            allReviews = reviewStorage.getCountReview(count);
+        }
         allReviews.sort((o1, o2) -> o2.getUseful() - o1.getUseful());
         return allReviews;
     }
@@ -48,5 +74,15 @@ public class ReviewService {
 
     public void deleteLike(long id, long userId, boolean isLike) {
         reviewStorage.deleteLike(id, userId, isLike);
+    }
+
+    private boolean isExistUser(long id) {
+        Optional<User> user = Optional.ofNullable(userStorage.findUserById(id));
+        return user.isPresent();
+    }
+
+    private boolean isExistFilm(long id) {
+        Optional<Film> film = Optional.ofNullable(filmStorage.getFilmById(id));
+        return film.isPresent();
     }
 }
