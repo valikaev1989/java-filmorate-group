@@ -46,6 +46,10 @@ public class DirectorService {
     public void addDirectorToFilm(Film film, Long directorId) {
         directorDbStorage.addDirectorToFilm(film, directorId);
     }
+
+    public void updateDirectorToFilm(Film film) {
+        directorDbStorage.updateDirectorToFilm(film);
+    }
     public List<Director> getDirectorsFromFilm(Long filmId){
         return directorDbStorage.getFilmDirectors(filmId);
     }

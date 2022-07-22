@@ -24,6 +24,7 @@ public class DirectorDbStorage implements DirectorStorage {
     private static final String GET_DIRECTOR_BY_ID = "SELECT * FROM DIRECTORS WHERE DIRECTOR_ID = ?";
     private static final String DELETE_DIRECTOR_BY_ID = "DELETE FROM DIRECTORS WHERE DIRECTOR_ID = ?";
     private static final String INSERT_DIR_TO_FILM = "INSERT INTO FILMS_DIRECTORS (FILM_ID, DIRECTOR_ID) VALUES (?, ?)";
+    private static final String UPDATE_DIR_TO_FILM = "MERGE INTO FILMS_DIRECTORS (FILM_ID, DIRECTOR_ID) VALUES (?, ?)";
     private static final String DELETE_DIRECTOR_FROM_FILM =
             "DELETE FROM FILMS_DIRECTORS WHERE FILM_ID = ? AND DIRECTOR_ID = ?";
     private static final String GET_DIRECTORS_FROM_FILM = "SELECT d.DIRECTOR_ID, d.DIRECTOR_NAME " +
@@ -41,7 +42,6 @@ public class DirectorDbStorage implements DirectorStorage {
     public List<Director> getAllDirectors() {
         log.info("Start DirectorStorage. Метод getAllDirectors.");
         return jdbcTemplate.query(GET_ALL_DIRECTORS, (this::mapRowToDirector));
-
     }
 
     @Override
@@ -117,5 +117,19 @@ public class DirectorDbStorage implements DirectorStorage {
         log.info("Start DirectorDbStorage getFilmDirectors у filmId {}", filmId);
         directorValidate.validateFilmId(filmId);
         return jdbcTemplate.query(GET_DIRECTORS_FROM_FILM, this::mapRowToDirector, filmId);
+    }
+
+    @Override
+    public void updateDirectorToFilm(Film film) {
+        log.info("Start DirectorDbStorage updateDirectorToFilm  фильм: {}", film);
+        if(film.getDirectors().isEmpty()){
+            film.setDirectors(null);
+            jdbcTemplate.update("DELETE FROM FILMS_DIRECTORS WHERE FILM_ID = ?", film.getId());
+        }else{
+            for (Director f : film.getDirectors()) {
+                directorValidate.validateIdDirector(f.getId());
+                jdbcTemplate.update(UPDATE_DIR_TO_FILM, film.getId(), f.getId());
+            }
+        }
     }
 }

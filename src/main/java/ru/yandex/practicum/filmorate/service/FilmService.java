@@ -58,11 +58,7 @@ public class FilmService {
         if (getFilms().stream().anyMatch(x -> x.getId() == film.getId())) {
             filmStorage.changeFilm(film);
             genreStorage.changeFilmGenres(film);
-            if (!film.getDirectors().isEmpty()) {
-                addDirectorInFilm(film);
-            } else {
-                deleteDirectorsFromFilm(film.getId());
-            }
+            directorsStorage.updateDirectorToFilm(film);
         } else {
             throw new ModelNotFoundException("Film not found with id " + film.getId());
         }
@@ -100,19 +96,12 @@ public class FilmService {
         return film.getReleaseDate().isAfter(LocalDate.of(1895, 12, 28));
     }
 
-
-    public void updateDirectorInFilm(long filmId, long directorId) {
-        log.info("Start filmService. Метод updateDirectorInFilm. directorId:{},  filmId{}.", directorId, filmId);
-        Film film = filmStorage.getFilmById(filmId);
-        directorsStorage.addDirectorToFilm(film, directorId);
-    }
-
     public void deleteDirectorInFilm(long filmId, long directorId) {
         log.info("Start filmService. Метод deleteDirectorInFilm. directorId:{},  filmId{}.", directorId, filmId);
         directorsStorage.deleteDirectorFromFilm(filmId, directorId);
     }
 
-    private void addDirectorInFilm(Film film) {
+    public void addDirectorInFilm(Film film) {
         log.info("Start filmService. Метод addDirectorInFilm. film:{}.", film);
         List<Director> directors = film.getDirectors();
         for (Director director : directors) {
@@ -121,7 +110,7 @@ public class FilmService {
     }
 
     public List<Film> getSortFilmByDirector(Long directorId, String parameter) {
-        log.info("Start filmService. Метод getSortFilmByDirector. directorId:{}, parameter:{}.", directorId,parameter);
+        log.info("Start filmService. Метод getSortFilmByDirector. directorId:{}, parameter:{}.", directorId, parameter);
         List<Film> films = filmStorage.getSortFilmByDirector(directorId, parameter);
         System.out.println(films);
         for (Film film : films) {
@@ -132,11 +121,8 @@ public class FilmService {
         return films;
     }
 
-    private void deleteDirectorsFromFilm(Long filmId) {
-        log.info("Start filmService. Метод deleteDirectorsFromFilm. filmId:{}.", filmId);
-        Film film = getFilmById(filmId);
-        for (Director director : film.getDirectors()) {
-            directorsStorage.deleteDirectorFromFilm(filmId, director.getId());
-        }
+    public void updateDirectorInFilm(Film film) {
+        log.info("Start filmService. Метод updateDirectorInFilm. film:{}", film);
+        directorsStorage.updateDirectorToFilm(film);
     }
 }
