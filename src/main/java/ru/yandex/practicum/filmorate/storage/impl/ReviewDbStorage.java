@@ -1,9 +1,11 @@
 package ru.yandex.practicum.filmorate.storage.impl;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Component;
+import ru.yandex.practicum.filmorate.exceptions.ModelNotFoundException;
 import ru.yandex.practicum.filmorate.model.Review;
 import ru.yandex.practicum.filmorate.storage.ReviewStorage;
 
@@ -45,8 +47,12 @@ public class ReviewDbStorage implements ReviewStorage {
 
     @Override
     public Review getReviewById(long id) {
-        String sql = "select * from reviews where review_id = ?";
-        return jdbcTemplate.queryForObject(sql, ReviewDbStorage::mapRowToReview, id);
+        try {
+            String sql = "select * from reviews where review_id = ?";
+            return jdbcTemplate.queryForObject(sql, ReviewDbStorage::mapRowToReview, id);
+        } catch (EmptyResultDataAccessException ex) {
+            throw new ModelNotFoundException(String.format("Review with id %d isn't exist", id));
+        }
     }
 
     @Override

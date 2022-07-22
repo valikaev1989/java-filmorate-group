@@ -48,13 +48,7 @@ public class ReviewService {
     }
 
     public Review getReviewById(long id) {
-        //return reviewStorage.getReviewById(id);
-
-        if (reviewStorage.getAllReview().stream().anyMatch(x -> x.getReviewId() == id)) {
-            return reviewStorage.getReviewById(id);
-        } else {
-            throw new ModelNotFoundException("Model not found");
-        }
+        return reviewStorage.getReviewById(id);
     }
 
     public List<Review> getReviewByFilmId(Optional<Long> filmId, int count) {
@@ -64,7 +58,7 @@ public class ReviewService {
         } else {
             allReviews = reviewStorage.getCountReview(count);
         }
-        allReviews.sort((o1, o2) -> o2.getUseful() - o1.getUseful());
+        allReviews.sort((o1, o2) -> Integer.compare(o2.getUseful(), o1.getUseful()));
         return allReviews;
     }
 
