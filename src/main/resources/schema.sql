@@ -35,8 +35,8 @@ CREATE TABLE IF NOT EXISTS userr(
 );
 
 CREATE TABLE IF NOT EXISTS likes(
-    film_id INTEGER REFERENCES film REFERENCES FILM (film_id) ON DELETE CASCADE,
-    user_id INTEGER REFERENCES userr REFERENCES USERR (user_id),
+    film_id INTEGER REFERENCES film (film_id) ON DELETE CASCADE,
+    user_id INTEGER REFERENCES userr (user_id) ON DELETE CASCADE,
     PRIMARY KEY (film_id, user_id)
 
 );

@@ -56,6 +56,7 @@ public class FilmService {
         }
         return getFilmById(film.getId());
     }
+
     public void like(long id, long userId) {
         likesStorage.like(id, userId);
     }
@@ -71,7 +72,7 @@ public class FilmService {
 
     public List<Film> getFilms() {
         List<Film> films = filmStorage.getFilms();
-        for(Film film : films) {
+        for (Film film : films) {
             film.setGenres(getGenresByFilmId(film.getId()));
             film.setLikes(likesStorage.getLikes(film.getId()));
         }
@@ -89,17 +90,10 @@ public class FilmService {
         return film.getReleaseDate().isAfter(LocalDate.of(1895, 12, 28));
     }
 
-    public void deleteFilm (long id){
+    public void deleteFilm(long id) {
         Film film = getFilmById(id);
-        if (getFilms().stream().anyMatch(x -> x.getId() == film.getId())) {
-            filmStorage.deleteFilm(id);
-        } else {
-            throw new ModelNotFoundException("Can't delete film with id " + id);
-        }
+        filmStorage.deleteFilm(id);
     }
-
-
-
 
 
 }
