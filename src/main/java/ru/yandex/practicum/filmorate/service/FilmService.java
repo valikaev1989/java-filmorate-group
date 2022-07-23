@@ -17,14 +17,17 @@ public class FilmService {
     private final FilmStorage filmStorage;
     private final GenreStorage genreStorage;
     private final LikesStorage likesStorage;
+    private final UserStorage userStorage;
 
     @Autowired
     public FilmService(FilmStorage filmStorage,
                        GenreStorage genreStorage,
-                       LikesStorage likesStorage) {
+                       LikesStorage likesStorage,
+                       UserStorage userStorage) {
         this.filmStorage = filmStorage;
         this.genreStorage = genreStorage;
         this.likesStorage = likesStorage;
+        this.userStorage = userStorage;
     }
 
     //если б rate для этого создали, то на входи не поступали бы фильмы с rate = 4
@@ -84,5 +87,9 @@ public class FilmService {
 
     public boolean checkDate(Film film) {
         return film.getReleaseDate().isAfter(LocalDate.of(1895, 12, 28));
+    }
+
+    public List<Film> getPopularFilmsSharedWithFriend(long userId, long friendId) {
+        return filmStorage.getPopularFilmsSharedWithFriend(userId, friendId);
     }
 }
