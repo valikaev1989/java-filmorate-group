@@ -70,4 +70,10 @@ public class UserController {
         log.info(String.format("Get user %d", id));
         return userService.getUserById(id);
     }
+
+    @DeleteMapping("{id}")
+    public void deleteFilmById(@PathVariable long id){
+        log.info("Delete user %d", id);
+        userService.deleteUser(id);
+    }
 }

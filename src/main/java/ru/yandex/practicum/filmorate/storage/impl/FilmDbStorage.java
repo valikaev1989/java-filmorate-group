@@ -33,9 +33,7 @@ public class FilmDbStorage implements FilmStorage {
         if (allFilms.contains(film)) {
             throw new ModelAlreadyExistException("Film already exist");
         } else {
-            SimpleJdbcInsert insert = new SimpleJdbcInsert(jdbcTemplate)
-                    .withTableName("film")
-                    .usingGeneratedKeyColumns("film_id");
+            SimpleJdbcInsert insert = new SimpleJdbcInsert(jdbcTemplate).withTableName("film").usingGeneratedKeyColumns("film_id");
             return insert.executeAndReturnKey(film.toMap()).longValue();
         }
     }
@@ -44,14 +42,8 @@ public class FilmDbStorage implements FilmStorage {
     @Override
     public void changeFilm(Film film) {
         if (getFilms().stream().anyMatch(x -> x.getId() == film.getId())) {
-            String sql = "update film set film_name = ?, description = ?, release_date = ?, duration_film = ?, mpa_id = ?" +
-                    "where film_id = ?";
-            jdbcTemplate.update(sql, film.getName(),
-                    film.getDescription(),
-                    film.getReleaseDate(),
-                    film.getDuration(),
-                    film.getMpa().getId(),
-                    film.getId());
+            String sql = "update film set film_name = ?, description = ?, release_date = ?, duration_film = ?, mpa_id = ?" + "where film_id = ?";
+            jdbcTemplate.update(sql, film.getName(), film.getDescription(), film.getReleaseDate(), film.getDuration(), film.getMpa().getId(), film.getId());
         } else {
             throw new ModelNotFoundException("Film not found with id " + film.getId());
         }
@@ -85,5 +77,10 @@ public class FilmDbStorage implements FilmStorage {
         //film.setMpa(getMpa(idFilm));
         film.setMpa(new Mpa(resultSet.getInt("MPA.mpa_id"), resultSet.getString("MPA.mpa_name")));
         return film;
+    }
+    @Override
+    public boolean deleteFilm(long id) {
+        String sql = "delete from film where film_id = ?";
+        return jdbcTemplate.update(sql, id) > 0;
     }
 }

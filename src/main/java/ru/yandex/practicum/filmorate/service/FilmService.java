@@ -85,4 +85,18 @@ public class FilmService {
     public boolean checkDate(Film film) {
         return film.getReleaseDate().isAfter(LocalDate.of(1895, 12, 28));
     }
+
+    public void deleteFilm (long id){
+        Film film = getFilmById(id);
+        if (getFilms().stream().anyMatch(x -> x.getId() == film.getId())) {
+            filmStorage.deleteFilm(id);
+        } else {
+            throw new ModelNotFoundException("Can't delete film with id " + id);
+        }
+    }
+
+
+
+
+
 }
