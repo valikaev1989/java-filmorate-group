@@ -1,4 +1,3 @@
-
 /*INSERT INTO USERR (EMAIL, LOGIN, USER_NAME, BIRTH_DATE)
 VALUES ('user@gmail.com', 'user', 'firstuser', '1999-12-05');*/
 

@@ -17,12 +17,8 @@ import java.util.List;
 @Slf4j
 @Component
 public class EventDbStorage implements EventsStorage {
-    private static final String GET_EVENTS = "SELECT E.EVENT_ID, E.TIME_STAMP, E.USER_ID, E.EVENT_TYPE, " +
-            "E.EVENT_OPERATION, E.ENTITY_ID " +
-            "FROM EVENTS E " +
-            "JOIN USERR U ON E.USER_ID = U.USER_ID " +
-            "JOIN FRIENDS F ON U.USER_ID = F.FRIEND_ID " +
-            "WHERE F.USER_ID  = ? ORDER BY E.TIME_STAMP DESC";
+    private static final String GET_EVENTS = "SELECT * FROM events WHERE user_id = ?";
+    private static final String GET_EVENT_BY_ID = "SELECT * FROM events WHERE event_id = ?";
     private final JdbcTemplate jdbcTemplate;
 
     public EventDbStorage(JdbcTemplate jdbcTemplate) {
@@ -31,20 +27,29 @@ public class EventDbStorage implements EventsStorage {
 
     @Override
     public List<Event> getEvents(Long userId) {
-        log.info("EventDbStorage.getEvents userId:{}.", userId);
-        return jdbcTemplate.query(GET_EVENTS, this::mapRowToEvent, userId);
+        log.info("Start EventDbStorage.getEvents userId:{}.", userId);
+        List<Event> events = jdbcTemplate.query(GET_EVENTS, this::mapRowToEvent, userId);
+        log.info("End EventDbStorage.getEvents userId:{}.List<Event> events.size = {}", userId, events.size());
+        return events;
     }
 
     @Override
     public void addEvent(Long userId, Long entityId, EventType eventType, EventOperations operation) {
-        log.info("EventDbStorage.addEvent userId:{},entityId:{},eventType:{},operation:{}",
+        log.info("Start EventDbStorage.addEvent userId:{},entityId:{},eventType:{},operation:{}",
                 userId, entityId,
                 eventType, operation);
         Event event = new Event(userId, entityId, eventType.getType(), operation.getOperation());
         SimpleJdbcInsert insert = new SimpleJdbcInsert(jdbcTemplate)
                 .withTableName("events")
                 .usingGeneratedKeyColumns("event_id");
-        insert.executeAndReturnKey(event.toMapEvent()).longValue();
+        long eventId = insert.executeAndReturnKey(event.toMapEvent()).longValue();
+        Event event1 = getEventById(eventId);
+        log.info("End EventDbStorage.addEvent event добавлен:{}.", event1);
+    }
+
+    @Override
+    public Event getEventById(Long eventId) {
+        return jdbcTemplate.queryForObject(GET_EVENT_BY_ID, this::mapRowToEvent, eventId);
     }
 
     private Event mapRowToEvent(ResultSet rs, int rowNum) throws SQLException {
