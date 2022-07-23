@@ -62,7 +62,7 @@ public class FilmService {
         } else {
             throw new ModelNotFoundException("Film not found with id " + film.getId());
         }
-        return getFilmById(film.getId());
+        return film;
     }
 
     public void like(long id, long userId) {
