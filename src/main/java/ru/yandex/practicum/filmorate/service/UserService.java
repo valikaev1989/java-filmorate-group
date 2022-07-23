@@ -83,10 +83,6 @@ public class UserService {
 
     public void deleteUser(long id) {
         User user = getUserById(id);
-        if (getAllUsers().stream().anyMatch(x -> x.getId() == user.getId())) {
-            userStorage.deleteUser(id);
-        } else {
-            throw new ModelNotFoundException("Can't delete user with id " + id);
-        }
+        userStorage.deleteUser(id);
     }
 }
