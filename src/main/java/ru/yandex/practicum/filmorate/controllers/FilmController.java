@@ -83,6 +83,7 @@ public class FilmController {
     public void deleteDirectorsFromFilm(@PathVariable long filmId, @PathVariable long directorId) {
         log.info("Получен запрос к эндпоинту /films{id}/director/{id}. Метод DELETE");
         filmService.deleteDirectorInFilm(filmId, directorId);
+    }
 
     /** Возвращает список общих с другом фильмов с сортировкой по их популярности.
      * API: GET /films/common?userId={userId}&friendId={friendId}
