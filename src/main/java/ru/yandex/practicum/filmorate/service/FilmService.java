@@ -109,7 +109,7 @@ public class FilmService {
         filmStorage.deleteFilm(id);
     }
 
-
+    public void deleteDirectorInFilm(long filmId, long directorId) {
         log.info("Start filmService. Метод deleteDirectorInFilm. directorId:{},  filmId{}.", directorId, filmId);
         directorsStorage.deleteDirectorFromFilm(filmId, directorId);
     }
