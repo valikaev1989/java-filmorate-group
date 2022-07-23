@@ -21,13 +21,18 @@ public class FilmService {
     private final GenreStorage genreStorage;
     private final LikesStorage likesStorage;
     private final DirectorService directorsStorage;
+    private final UserStorage userStorage;
 
     @Autowired
-    public FilmService(FilmStorage filmStorage, GenreStorage genreStorage,
-                       LikesStorage likesStorage, DirectorService directorsStorage) {
+    public FilmService(FilmStorage filmStorage,
+                       GenreStorage genreStorage,
+                       LikesStorage likesStorage,
+                       UserStorage userStorage,
+                       DirectorService directorsStorage) {
         this.filmStorage = filmStorage;
         this.genreStorage = genreStorage;
         this.likesStorage = likesStorage;
+        this.userStorage = userStorage;
         this.directorsStorage = directorsStorage;
     }
 
@@ -129,5 +134,9 @@ public class FilmService {
             film.setDirectors(directorsStorage.getDirectorsFromFilm(film.getId()));
         }
         return films;
+    }
+    
+    public List<Film> getPopularFilmsSharedWithFriend(long userId, long friendId) {
+        return filmStorage.getPopularFilmsSharedWithFriend(userId, friendId);
     }
 }

@@ -111,4 +111,22 @@ public class FilmDbStorage implements FilmStorage {
             throw new ModelNotFoundException("Нет MPA в базе");
         }
     }
+
+    public List<Film> getPopularFilmsSharedWithFriend(long userId, long friendId) {
+        String sql = "SELECT *\n" +
+                "FROM film f, MPA m\n" +
+                "WHERE  f.MPA_ID = m.MPA_ID AND film_id IN (select FILM_ID\n" +
+                "                  from LIKES\n" +
+                "                  WHERE film_id IN (SELECT film_id\n" +
+                "                                    FROM likes\n" +
+                "                                    WHERE user_id = ?\n" +
+                "                                    INTERSECT\n" +
+                "                                    SELECT film_id\n" +
+                "                                    FROM likes\n" +
+                "                                    WHERE user_id = ?)\n" +
+                "                  group by FILM_ID\n" +
+                "                  order by count(FILM_ID) desc)";
+
+        return jdbcTemplate.query(sql, FilmDbStorage::mapRowToFilm, userId, friendId);
+    }
 }
