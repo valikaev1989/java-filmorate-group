@@ -4,10 +4,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import ru.yandex.practicum.filmorate.model.Event;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.UserService;
 
 import javax.validation.Valid;
+import java.util.Collection;
 import java.util.List;
 
 @RestController
@@ -69,5 +71,9 @@ public class UserController {
     public User getUser(@PathVariable long id) {
         log.info(String.format("Get user %d", id));
         return userService.getUserById(id);
+    }
+    @GetMapping("/{id}/feed")
+    public List<Event> getEvents(@PathVariable("id") Long id) {
+        return eventsService.getEvents(id);
     }
 }
