@@ -129,4 +129,16 @@ public class FilmDbStorage implements FilmStorage {
 
         return jdbcTemplate.query(sql, FilmDbStorage::mapRowToFilm, userId, friendId);
     }
+
+    @Override
+    public List<Film> getPopularFilmsSearchByDirector(String query){
+        String sql = "select * " +
+                "from film as f " +
+                "left join FILMS_DIRECTORS as fd on f.FILM_ID = fd.FILM_ID " +
+                "left join directors as d on fd.DIRECTOR_ID = d.DIRECTOR_ID " +
+                "left join likes as l on f.FILM_ID = l.FILM_ID " +
+                "where d.DIRECTOR_NAME = (select  d.DIRECTOR_NAME from DIRECTORS where locate(?, d.DIRECTOR_NAME)) " +
+                "order by count(l.USER_ID)";
+        return jdbcTemplate.query(sql, FilmDbStorage::mapRowToFilm, query);
+    }
 }

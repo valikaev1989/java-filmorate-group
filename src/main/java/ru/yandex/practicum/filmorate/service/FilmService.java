@@ -139,4 +139,8 @@ public class FilmService {
     public List<Film> getPopularFilmsSharedWithFriend(long userId, long friendId) {
         return filmStorage.getPopularFilmsSharedWithFriend(userId, friendId);
     }
+
+    public List<Film> getPopularFilmsSearchByDirectorTitle(String query, List<String> by) {
+        return filmStorage.getPopularFilmsSearchByDirector(query);
+    }
 }
