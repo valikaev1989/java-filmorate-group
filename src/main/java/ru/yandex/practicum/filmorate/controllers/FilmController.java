@@ -79,4 +79,28 @@ public class FilmController {
     }
 
 
+    @GetMapping("/films/director/{directorId}")
+    public List<Film> getSortFilmByDirector(@PathVariable long directorId,
+                                            @RequestParam String sortBy) {
+        log.info("Получен запрос к эндпоинту /films/director/{id}. Метод GET");
+        return filmService.getSortFilmByDirector(directorId, sortBy);
+    }
+
+    @DeleteMapping("/films{filmId}/directors/{directorId}")
+    public void deleteDirectorsFromFilm(@PathVariable long filmId, @PathVariable long directorId) {
+        log.info("Получен запрос к эндпоинту /films{id}/director/{id}. Метод DELETE");
+        filmService.deleteDirectorInFilm(filmId, directorId);
+    }
+
+    /** Возвращает список общих с другом фильмов с сортировкой по их популярности.
+     * API: GET /films/common?userId={userId}&friendId={friendId}
+     * @param userId идентификатор пользователя, запрашивающего информацию
+     * @param friendId идентификатор пользователя, с которым необходимо сравнить список фильмов
+     * @return Возвращает список фильмов, отсортированных по популярности.
+     */
+    @GetMapping("/films/common")
+    public List<Film> getPopularFilmsSharedWithFriend(@RequestParam long userId, @RequestParam long friendId){
+        log.info("Get popular films shared with a friend.");
+        return filmService.getPopularFilmsSharedWithFriend(userId, friendId);
+    }
 }
