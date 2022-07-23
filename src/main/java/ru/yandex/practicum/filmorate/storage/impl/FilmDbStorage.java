@@ -101,7 +101,7 @@ public class FilmDbStorage implements FilmStorage {
                 "WHERE film_id IN (%s)";
         String placeholders = String.join(",", Collections.nCopies(ids.size(), "?"));
         String sqlQuery = String.format(sqlQueryTemplate, placeholders);
-        return jdbcTemplate.query(sqlQuery, FilmDbStorage::mapRowToFilm);
+        return jdbcTemplate.query(sqlQuery, ids.toArray(), FilmDbStorage::mapRowToFilm);
     }
 
     public static Film mapRowToFilm(ResultSet resultSet, int rowNum) throws SQLException {
