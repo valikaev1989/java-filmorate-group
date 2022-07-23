@@ -78,7 +78,6 @@ public class DirectorDbStorage implements DirectorStorage {
         } else {
             throw new ModelNotFoundException("режиссера с Id:" + directorId + "нет");
         }
-
     }
 
     @Override

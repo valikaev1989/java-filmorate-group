@@ -79,12 +79,6 @@ public class FilmController {
         return filmService.getSortFilmByDirector(directorId, sortBy);
     }
 
-//    @PutMapping("/films{filmId}")
-//    public void addDirectorsInFilm(@RequestBody Film film) {
-//        log.info("Получен запрос к эндпоинту /films{id}/director/{id}. Метод PUT");
-//        filmService.updateDirectorInFilm(film);
-//    }
-
     @DeleteMapping("/films{filmId}/directors/{directorId}")
     public void deleteDirectorsFromFilm(@PathVariable long filmId, @PathVariable long directorId) {
         log.info("Получен запрос к эндпоинту /films{id}/director/{id}. Метод DELETE");

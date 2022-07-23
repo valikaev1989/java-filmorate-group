@@ -8,7 +8,6 @@ import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exceptions.ModelAlreadyExistException;
 import ru.yandex.practicum.filmorate.exceptions.ModelNotFoundException;
-import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Mpa;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
@@ -29,11 +28,11 @@ public class FilmDbStorage implements FilmStorage {
         this.jdbcTemplate = jdbcTemplate;
     }
 
-    private static final String GET_SORTED_FILMS_BY_YEAR = "SELECT F.FILM_ID,F.film_name, F.description, F.release_date, F.duration_film, F.mpa_id,F.RATE FROM FILMS_DIRECTORS FD " +
-            "LEFT JOIN FILM F on  fd.FILM_ID=F.FILM_ID "+
-            "LEFT JOIN MPA M on F.MPA_ID = M.MPA_ID"+
-            " WHERE fd.director_id = ? ORDER BY RELEASE_DATE DESC";
-    private static final String GET_SORT_BY_LIKES_FILMS = "SELECT F.FILM_ID,F.film_name, F.description, F.release_date, F.duration_film, F.mpa_id,F.RATE  FROM FILMS_DIRECTORS FD " +
+    private static final String GET_SORTED_FILMS_BY_YEAR = "SELECT * FROM FILMS_DIRECTORS FD " +
+            "LEFT JOIN FILM F on  fd.FILM_ID=F.FILM_ID " +
+            "LEFT JOIN MPA M on F.MPA_ID = M.MPA_ID" +
+            " WHERE fd.director_id = ? ORDER BY RELEASE_DATE ASC";
+    private static final String GET_SORT_BY_LIKES_FILMS = "SELECT *  FROM FILMS_DIRECTORS FD " +
             "LEFT JOIN FILM F on  fd.FILM_ID=F.FILM_ID LEFT JOIN LIKES L on F.FILM_ID = L.FILM_ID LEFT JOIN MPA M on F.MPA_ID = M.MPA_ID WHERE fd.director_id = ? " +
             "GROUP BY F.FILM_ID ORDER BY COUNT(L.USER_ID) DESC";
 
@@ -84,15 +83,15 @@ public class FilmDbStorage implements FilmStorage {
         }
     }
 
+
     @Override
-    public List<Film> getSortFilmByDirector(Long directorId, String parameter) {
-        if (parameter.equals("year")) {
-            return jdbcTemplate.query(GET_SORTED_FILMS_BY_YEAR, FilmDbStorage::mapRowToFilm, directorId);
-        } else if (parameter.equals("likes")) {
-            return jdbcTemplate.query(GET_SORT_BY_LIKES_FILMS, FilmDbStorage::mapRowToFilm, directorId);
-        } else {
-            throw new ValidationException("Параметр в запросе задан не верно!");
-        }
+    public List<Film> getSortFilmByDirectorSortByYear(Long directorId) {
+        return jdbcTemplate.query(GET_SORTED_FILMS_BY_YEAR, FilmDbStorage::mapRowToFilm, directorId);
+    }
+
+    @Override
+    public List<Film> getSortFilmByDirectorSortByLikes(Long directorId) {
+        return jdbcTemplate.query(GET_SORT_BY_LIKES_FILMS, FilmDbStorage::mapRowToFilm, directorId);
     }
 
     public static Film mapRowToFilm(ResultSet resultSet, int rowNum) throws SQLException {
@@ -103,11 +102,10 @@ public class FilmDbStorage implements FilmStorage {
             LocalDate releaseDate = resultSet.getDate("release_date").toLocalDate();
             int duration = resultSet.getInt("duration_film");
             int rate = resultSet.getInt("rate");
-            Film film = new Film(name, description, releaseDate, duration,rate);
+            Film film = new Film(name, description, releaseDate, duration, rate);
             film.setId(idFilm);
             //film.setMpa(getMpa(idFilm));
-            film.setMpa(new Mpa(resultSet.getInt("MPA.mpa_id"), resultSet.getString("MPA.mpa_name")));
-            System.out.println(film);
+            film.setMpa(new Mpa(resultSet.getInt("mpa_id"), resultSet.getString("mpa_name")));
             return film;
         } else {
             throw new ModelNotFoundException("Нет MPA в базе");

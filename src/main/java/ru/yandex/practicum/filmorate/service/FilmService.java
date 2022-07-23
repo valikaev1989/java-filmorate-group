@@ -109,20 +109,25 @@ public class FilmService {
         }
     }
 
-    public List<Film> getSortFilmByDirector(Long directorId, String parameter) {
-        log.info("Start filmService. Метод getSortFilmByDirector. directorId:{}, parameter:{}.", directorId, parameter);
-        List<Film> films = filmStorage.getSortFilmByDirector(directorId, parameter);
-        System.out.println(films);
+    public List<Film> getSortFilmByDirector(Long directorId, String sortBy) {
+        log.info("Start filmService. Метод getSortFilmByDirector. directorId:{}, parameter:{}.", directorId, sortBy);
+        directorsStorage.getDirector(directorId);
+        List<Film> films;
+        switch (sortBy) {
+            case "year":
+                films = filmStorage.getSortFilmByDirectorSortByYear(directorId);
+                break;
+            case "likes":
+                films = filmStorage.getSortFilmByDirectorSortByLikes(directorId);
+                break;
+            default:
+                throw new ModelNotFoundException("сортировка не верна");
+        }
         for (Film film : films) {
             film.setGenres(getGenresByFilmId(film.getId()));
             film.setLikes(likesStorage.getLikes(film.getId()));
             film.setDirectors(directorsStorage.getDirectorsFromFilm(film.getId()));
         }
         return films;
-    }
-
-    public void updateDirectorInFilm(Film film) {
-        log.info("Start filmService. Метод updateDirectorInFilm. film:{}", film);
-        directorsStorage.updateDirectorToFilm(film);
     }
 }
