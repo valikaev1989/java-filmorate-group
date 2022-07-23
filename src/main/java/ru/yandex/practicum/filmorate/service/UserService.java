@@ -54,6 +54,8 @@ public class UserService {
     }
 
     public List<User> getUserFriends(long id) {
+        //user existence check
+        userStorage.findUserById(id);
         List<User> userFriends = new ArrayList<>();
         List<Long> friendsId = friendStorage.getUserFriends(id);
         for (Long oneId : friendsId) {
