@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.storage.impl;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -16,6 +17,7 @@ import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.List;
 
+@Slf4j
 @Component("filmDbStorage")
 public class FilmDbStorage implements FilmStorage {
 
@@ -25,6 +27,14 @@ public class FilmDbStorage implements FilmStorage {
     public FilmDbStorage(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
     }
+
+    private static final String GET_SORTED_FILMS_BY_YEAR = "SELECT * FROM FILMS_DIRECTORS FD " +
+            "LEFT JOIN FILM F on  fd.FILM_ID=F.FILM_ID " +
+            "LEFT JOIN MPA M on F.MPA_ID = M.MPA_ID" +
+            " WHERE fd.director_id = ? ORDER BY RELEASE_DATE ASC";
+    private static final String GET_SORT_BY_LIKES_FILMS = "SELECT *  FROM FILMS_DIRECTORS FD " +
+            "LEFT JOIN FILM F on  fd.FILM_ID=F.FILM_ID LEFT JOIN LIKES L on F.FILM_ID = L.FILM_ID LEFT JOIN MPA M on F.MPA_ID = M.MPA_ID WHERE fd.director_id = ? " +
+            "GROUP BY F.FILM_ID ORDER BY COUNT(L.USER_ID) DESC";
 
     //++++++++++++++++++++++
     @Override
@@ -73,18 +83,33 @@ public class FilmDbStorage implements FilmStorage {
         }
     }
 
+
+    @Override
+    public List<Film> getSortFilmByDirectorSortByYear(Long directorId) {
+        return jdbcTemplate.query(GET_SORTED_FILMS_BY_YEAR, FilmDbStorage::mapRowToFilm, directorId);
+    }
+
+    @Override
+    public List<Film> getSortFilmByDirectorSortByLikes(Long directorId) {
+        return jdbcTemplate.query(GET_SORT_BY_LIKES_FILMS, FilmDbStorage::mapRowToFilm, directorId);
+    }
+
     public static Film mapRowToFilm(ResultSet resultSet, int rowNum) throws SQLException {
-        int idFilm = resultSet.getInt("film_id");
-        String name = resultSet.getString("film_name");
-        String description = resultSet.getString("description");
-        LocalDate releaseDate = resultSet.getDate("release_date").toLocalDate();
-        int duration = resultSet.getInt("duration_film");
-        int rate = resultSet.getInt("rate");
-        Film film = new Film(name, description, releaseDate, duration, rate);
-        film.setId(idFilm);
-        //film.setMpa(getMpa(idFilm));
-        film.setMpa(new Mpa(resultSet.getInt("MPA.mpa_id"), resultSet.getString("MPA.mpa_name")));
-        return film;
+        if (resultSet.getRow() != 0) {
+            int idFilm = resultSet.getInt("film_id");
+            String name = resultSet.getString("film_name");
+            String description = resultSet.getString("description");
+            LocalDate releaseDate = resultSet.getDate("release_date").toLocalDate();
+            int duration = resultSet.getInt("duration_film");
+            int rate = resultSet.getInt("rate");
+            Film film = new Film(name, description, releaseDate, duration, rate);
+            film.setId(idFilm);
+            //film.setMpa(getMpa(idFilm));
+            film.setMpa(new Mpa(resultSet.getInt("mpa_id"), resultSet.getString("mpa_name")));
+            return film;
+        } else {
+            throw new ModelNotFoundException("Нет MPA в базе");
+        }
     }
 
     public List<Film> getPopularFilmsSharedWithFriend(long userId, long friendId) {
