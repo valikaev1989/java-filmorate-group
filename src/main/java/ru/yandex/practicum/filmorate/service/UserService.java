@@ -4,6 +4,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exceptions.ModelNotFoundException;
 import ru.yandex.practicum.filmorate.model.Event;
+import ru.yandex.practicum.filmorate.model.EventOperations;
+import ru.yandex.practicum.filmorate.model.EventType;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.EventsStorage;
 import ru.yandex.practicum.filmorate.storage.FriendStorage;
@@ -49,11 +51,13 @@ public class UserService {
             throw new ModelNotFoundException("User not found");
         } else {
             friendStorage.addFriendToUser(userId, friendId);
+            eventsStorage.addEvent(userId, friendId, EventType.FRIEND, EventOperations.ADD);
         }
     }
 
-    public void deleteFromFriend(long idUser, long friendId) {
-        friendStorage.deleteFromFriends(idUser, friendId);
+    public void deleteFromFriend(long userId, long friendId) {
+        friendStorage.deleteFromFriends(userId, friendId);
+        eventsStorage.addEvent(userId, friendId, EventType.FRIEND, EventOperations.REMOVE);
     }
 
     public List<User> getUserFriends(long id) {
@@ -80,10 +84,5 @@ public class UserService {
             user.setName(user.getLogin());
         }
         return user;
-    }
-
-    public List<Event> getEvents(Long id) {
-        getUserById(id);
-        return eventsStorage.getEvents(id);
     }
 }

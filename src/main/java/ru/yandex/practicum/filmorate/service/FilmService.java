@@ -3,6 +3,8 @@ package ru.yandex.practicum.filmorate.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exceptions.ModelNotFoundException;
+import ru.yandex.practicum.filmorate.model.EventOperations;
+import ru.yandex.practicum.filmorate.model.EventType;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.storage.*;
@@ -17,14 +19,15 @@ public class FilmService {
     private final FilmStorage filmStorage;
     private final GenreStorage genreStorage;
     private final LikesStorage likesStorage;
+    private final EventsStorage eventsStorage;
 
     @Autowired
-    public FilmService(FilmStorage filmStorage,
-                       GenreStorage genreStorage,
-                       LikesStorage likesStorage) {
+    public FilmService(FilmStorage filmStorage, GenreStorage genreStorage,
+                       LikesStorage likesStorage, EventsStorage eventsStorage) {
         this.filmStorage = filmStorage;
         this.genreStorage = genreStorage;
         this.likesStorage = likesStorage;
+        this.eventsStorage = eventsStorage;
     }
 
     //если б rate для этого создали, то на входи не поступали бы фильмы с rate = 4
@@ -56,14 +59,17 @@ public class FilmService {
         }
         return getFilmById(film.getId());
     }
-    public void like(long id, long userId) {
-        likesStorage.like(id, userId);
+
+    public void like(long filmId, long userId) {
+        likesStorage.like(filmId, userId);
+        eventsStorage.addEvent(userId, filmId, EventType.LIKE, EventOperations.ADD);
     }
 
-    public void deleteLike(long id, long userId) {
-        Film film = getFilmById(id);
+    public void deleteLike(long filmId, long userId) {
+        Film film = getFilmById(filmId);
         if (film.getLikes().contains(userId)) {
-            likesStorage.deleteLike(id, userId);
+            likesStorage.deleteLike(filmId, userId);
+            eventsStorage.addEvent(userId, filmId, EventType.LIKE, EventOperations.REMOVE);
         } else {
             throw new ModelNotFoundException("User not found with id " + userId);
         }
@@ -71,7 +77,7 @@ public class FilmService {
 
     public List<Film> getFilms() {
         List<Film> films = filmStorage.getFilms();
-        for(Film film : films) {
+        for (Film film : films) {
             film.setGenres(getGenresByFilmId(film.getId()));
             film.setLikes(likesStorage.getLikes(film.getId()));
         }

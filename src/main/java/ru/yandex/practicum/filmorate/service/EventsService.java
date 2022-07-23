@@ -6,6 +6,7 @@ import ru.yandex.practicum.filmorate.model.Event;
 import ru.yandex.practicum.filmorate.storage.EventsStorage;
 
 import java.util.Collection;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -13,7 +14,7 @@ public class EventsService {
     private final EventsStorage eventsStorage;
     private final UserService userService;
 
-    public Collection<Event> getEvents(Long id) {
+    public List<Event> getEvents(Long id) {
         userService.getUserById(id);
         return eventsStorage.getEvents(id);
     }
