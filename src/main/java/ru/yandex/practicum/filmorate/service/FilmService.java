@@ -57,10 +57,12 @@ public class FilmService {
 
     public List<Film> getFilmsByIds(List<Long> ids) {
         List<Film> films = filmStorage.getFilms(ids);
+        //todo эту байду перед финальным ревью вынести в отдельный метод
         films.forEach(film -> {
-                    film.setLikes(likesStorage.getLikes(film.getId()));
-                    film.setGenres(getGenresByFilmId(film.getId()));
-                });
+            film.setLikes(likesStorage.getLikes(film.getId()));
+            film.setGenres(getGenresByFilmId(film.getId()));
+            film.setDirectors(directorsStorage.getDirectorsFromFilm(film.getId()));
+        });
         return films;
     }
 
@@ -94,6 +96,7 @@ public class FilmService {
 
     public List<Film> getFilms() {
         List<Film> films = filmStorage.getFilms();
+        //todo эту байду перед финальным ревью вынести в отдельный метод
         for (Film film : films) {
             film.setGenres(getGenresByFilmId(film.getId()));
             film.setLikes(likesStorage.getLikes(film.getId()));
@@ -102,6 +105,7 @@ public class FilmService {
         return films;
     }
 
+    //todo здесь тоже будет байда
     public List<Film> getPopularFilms(int count) {
         return likesStorage.getPopularFilms(count);
     }
@@ -144,8 +148,22 @@ public class FilmService {
         }
         return films;
     }
-    
+
     public List<Film> getPopularFilmsSharedWithFriend(long userId, long friendId) {
         return filmStorage.getPopularFilmsSharedWithFriend(userId, friendId);
+    }
+
+    public List<Film> getRecommendations(long userId) {
+        userStorage.findUserById(userId);
+        List<Long> recommendationsIds = likesStorage.getRecommendations(userId);
+        List<Film> recommendations = filmStorage.getFilms(recommendationsIds);
+        //todo эту байду перед финальным ревью вынести в отдельный метод
+        recommendations.forEach(film -> {
+                    film.setGenres(getGenresByFilmId(film.getId()));
+                    film.setLikes(likesStorage.getLikes(film.getId()));
+                    film.setDirectors(directorsStorage.getDirectorsFromFilm(film.getId()));
+                }
+        );
+        return recommendations;
     }
 }

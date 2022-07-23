@@ -4,7 +4,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.service.FilmService;
 import ru.yandex.practicum.filmorate.service.UserService;
 
 import javax.validation.Valid;
@@ -16,10 +18,12 @@ import java.util.List;
 @Validated
 public class UserController {
     private final UserService userService;
+    private final FilmService filmService;
 
     @Autowired
-    public UserController(UserService userService) {
+    public UserController(UserService userService, FilmService filmService) {
         this.userService = userService;
+        this.filmService = filmService;
     }
 
     @GetMapping
@@ -69,5 +73,11 @@ public class UserController {
     public User getUser(@PathVariable long id) {
         log.info(String.format("Get user %d", id));
         return userService.getUserById(id);
+    }
+
+    @GetMapping("/{id}/recommendations")
+    public List<Film> getRecommendations(@PathVariable long id) {
+        log.info("Get recommendations for user with id {}", id);
+        return filmService.getRecommendations(id);
     }
 }
