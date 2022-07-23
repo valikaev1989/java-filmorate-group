@@ -6,10 +6,10 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.Event;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.service.EventsService;
 import ru.yandex.practicum.filmorate.service.UserService;
 
 import javax.validation.Valid;
-import java.util.Collection;
 import java.util.List;
 
 @RestController
@@ -18,10 +18,12 @@ import java.util.List;
 @Validated
 public class UserController {
     private final UserService userService;
+    private final EventsService eventsService;
 
     @Autowired
-    public UserController(UserService userService) {
+    public UserController(UserService userService, EventsService eventsService) {
         this.userService = userService;
+        this.eventsService = eventsService;
     }
 
     @GetMapping

@@ -14,7 +14,7 @@ public class EventsService {
     private final UserService userService;
 
     public Collection<Event> getEvents(Long id) {
-        userService.getUser(id);
+        userService.getUserById(id);
         return eventsStorage.getEvents(id);
     }
 }
