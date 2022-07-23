@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.storage.impl;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Component;
@@ -13,6 +14,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 
+@Slf4j
 @Component
 public class EventDbStorage implements EventsStorage {
     private static final String GET_EVENTS = "SELECT E.EVENT_ID, E.TIME_STAMP, E.USER_ID, E.EVENT_TYPE, " +
@@ -28,12 +30,16 @@ public class EventDbStorage implements EventsStorage {
     }
 
     @Override
-    public List<Event> getEvents(Long id) {
-        return jdbcTemplate.query(GET_EVENTS, this::mapRowToEvent, id);
+    public List<Event> getEvents(Long userId) {
+        log.info("EventDbStorage.getEvents userId:{}.", userId);
+        return jdbcTemplate.query(GET_EVENTS, this::mapRowToEvent, userId);
     }
 
     @Override
     public void addEvent(Long userId, Long entityId, EventType eventType, EventOperations operation) {
+        log.info("EventDbStorage.addEvent userId:{},entityId:{},eventType:{},operation:{}",
+                userId, entityId,
+                eventType, operation);
         Event event = new Event(userId, entityId, eventType.getType(), operation.getOperation());
         SimpleJdbcInsert insert = new SimpleJdbcInsert(jdbcTemplate)
                 .withTableName("events")

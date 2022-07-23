@@ -1,4 +1,4 @@
-drop table if exists directors,genre,mpa,film,userr,films_directors,friends,genre_and_film,likes,reviews, on cascade ;
+drop table if exists directors,genre,mpa,film,userr,films_directors,friends,genre_and_film,likes,reviews,events on cascade ;
 CREATE TABLE IF NOT EXISTS genre (
     genre_id INTEGER,
     name varchar(50),

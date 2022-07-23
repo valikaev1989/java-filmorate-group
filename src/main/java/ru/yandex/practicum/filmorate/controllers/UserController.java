@@ -76,7 +76,7 @@ public class UserController {
     }
     @GetMapping("/{id}/feed")
     public List<Event> getEvents(@PathVariable("id") Long id) {
-        log.info(String.format("Get user %d", id));
+        log.info("Получен запрос к эндпоинту /users/{id}/feed. Метод GET");
         return eventsService.getEvents(id);
     }
 }
