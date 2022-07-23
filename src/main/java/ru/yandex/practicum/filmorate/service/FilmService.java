@@ -90,12 +90,6 @@ public class FilmService {
     }
 
     public List<Film> getPopularFilmsSharedWithFriend(long userId, long friendId) {
-        /*// проверяем, являются ли пользователь с friendId другом пользователю с userId
-        if (userStorage.getUserFriends(userId).contains(userStorage.findUserById(friendId))) {
-            return filmStorage.getPopularFilmsSharedWithFriend(userId, friendId);
-        } else {
-            throw new ModelNotFoundException("Users are not friends: user " + friendId + " is not in user " + userId + " friends list.");
-        }*/
         return filmStorage.getPopularFilmsSharedWithFriend(userId, friendId);
     }
 }
