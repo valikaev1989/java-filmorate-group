@@ -3,6 +3,7 @@ package ru.yandex.practicum.filmorate.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exceptions.ModelNotFoundException;
+import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.FriendStorage;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
@@ -41,7 +42,7 @@ public class UserService {
         User user = getUserById(userId);
         User friendUser = getUserById(friendId);
         Collection<User> users = getAllUsers();
-        if(!users.contains(user) && users.contains(friendUser)) {
+        if (!users.contains(user) && users.contains(friendUser)) {
             throw new ModelNotFoundException("User not found");
         } else {
             friendStorage.addFriendToUser(userId, friendId);
@@ -53,9 +54,11 @@ public class UserService {
     }
 
     public List<User> getUserFriends(long id) {
+        //user existence check
+        userStorage.findUserById(id);
         List<User> userFriends = new ArrayList<>();
         List<Long> friendsId = friendStorage.getUserFriends(id);
-        for(Long oneId : friendsId) {
+        for (Long oneId : friendsId) {
             userFriends.add(getUserById(oneId));
         }
         return userFriends;
@@ -72,9 +75,14 @@ public class UserService {
     }
 
     public User checkName(User user) {
-        if(user.getName() == null || user.getName().isBlank()) {
+        if (user.getName() == null || user.getName().isBlank()) {
             user.setName(user.getLogin());
         }
         return user;
+    }
+
+    public void deleteUser(long id) {
+        User user = getUserById(id);
+        userStorage.deleteUser(id);
     }
 }

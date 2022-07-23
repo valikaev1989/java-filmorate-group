@@ -17,4 +17,5 @@ public interface UserStorage {
 
     List<User> getUserFriends(long id);
 
+    boolean deleteUser(long id);
 }

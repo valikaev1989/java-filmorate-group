@@ -54,9 +54,10 @@ public class FilmDbStorage implements FilmStorage {
     @Override
     public void changeFilm(Film film) {
         if (getFilms().stream().anyMatch(x -> x.getId() == film.getId())) {
-            String sql = "update film set film_name = ?, description = ?, release_date = ?, duration_film = ?, mpa_id = ?" +
-                    "where film_id = ?";
-            jdbcTemplate.update(sql, film.getName(),
+            String sql = "update film set film_name = ?, description = ?, release_date = ?, duration_film = ?," +
+                    " mpa_id = ? where film_id = ?";
+            jdbcTemplate.update(sql,
+                    film.getName(),
                     film.getDescription(),
                     film.getReleaseDate(),
                     film.getDuration(),
@@ -128,5 +129,10 @@ public class FilmDbStorage implements FilmStorage {
                 "                  order by count(FILM_ID) desc)";
 
         return jdbcTemplate.query(sql, FilmDbStorage::mapRowToFilm, userId, friendId);
+    }
+    @Override
+    public boolean deleteFilm(long id) {
+        String sql = "delete from film where film_id = ?";
+        return jdbcTemplate.update(sql, id) > 0;
     }
 }

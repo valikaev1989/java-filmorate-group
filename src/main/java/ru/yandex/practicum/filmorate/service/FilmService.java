@@ -94,11 +94,19 @@ public class FilmService {
     }
 
     public List<Film> getPopularFilms(int count) {
-        return likesStorage.getPopularFilms(count);
+        List<Film> films = likesStorage.getPopularFilms(count);
+        films.forEach(film -> film.setGenres(getGenresByFilmId(film.getId())));
+        films.forEach(film -> film.setLikes(likesStorage.getLikes(film.getId())));
+        return films;
     }
 
     public boolean checkDate(Film film) {
         return film.getReleaseDate().isAfter(LocalDate.of(1895, 12, 28));
+    }
+
+    public void deleteFilm(long id) {
+        Film film = getFilmById(id);
+        filmStorage.deleteFilm(id);
     }
 
     public void deleteDirectorInFilm(long filmId, long directorId) {

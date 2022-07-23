@@ -13,6 +13,8 @@ public interface FilmStorage {
 
     Film getFilmById(long id);
 
+    boolean deleteFilm(long id);
+  
     List<Film> getSortFilmByDirectorSortByYear(Long directorId);
 
     List<Film> getSortFilmByDirectorSortByLikes(Long directorId);
