@@ -72,6 +72,13 @@ public class FilmController {
         return filmService.getPopularFilms(count);
     }
 
+    @DeleteMapping("/films/{id}")
+    public void deleteFilmById(@PathVariable long id){
+        log.info("Delete film %d", id);
+        filmService.deleteFilm(id);
+    }
+
+
     @GetMapping("/films/director/{directorId}")
     public List<Film> getSortFilmByDirector(@PathVariable long directorId,
                                             @RequestParam String sortBy) {
