@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.storage.impl;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -12,7 +13,7 @@ import ru.yandex.practicum.filmorate.storage.ReviewStorage;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
-
+@Slf4j
 @Component
 public class ReviewDbStorage implements ReviewStorage {
     private final JdbcTemplate jdbcTemplate;
@@ -24,23 +25,31 @@ public class ReviewDbStorage implements ReviewStorage {
 
     @Override
     public long addReview(Review review) {
+        log.info("Start ReviewDbStorage.addReview review:{}.", review);
         SimpleJdbcInsert insert = new SimpleJdbcInsert(jdbcTemplate)
                 .withTableName("reviews")
                 .usingGeneratedKeyColumns("review_id");
-        return insert.executeAndReturnKey(review.toMap()).longValue();
+        long reviewId = insert.executeAndReturnKey(review.toMap()).longValue();
+        Review review1 = getReviewById(reviewId);
+        log.info("End ReviewDbStorage.addReview review:{}.", review1);
+        return reviewId;
     }
 
     @Override
     public void changeReview(Review review) {
+        log.info("Start ReviewDbStorage.changeReview review:{}.", review);
         String sql = "update reviews set content = ?, is_positive = ? " +
                 "where review_id = ?";
         jdbcTemplate.update(sql, review.getContent(),
                 review.getIsPositive(),
                 review.getReviewId());
+        Review review1 = getReviewById(review.getReviewId());
+        log.info("End ReviewDbStorage.changeReview review:{}.", review1);
     }
 
     @Override
     public void deleteReview(long id) {
+        log.info("Start ReviewDbStorage.deleteReview review:{}.", getReviewById(id));
         String sql = "delete from reviews where review_id = ?";
         jdbcTemplate.update(sql, id);
     }
