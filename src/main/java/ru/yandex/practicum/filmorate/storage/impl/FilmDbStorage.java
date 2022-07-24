@@ -140,7 +140,7 @@ public class FilmDbStorage implements FilmStorage {
                         "LEFT JOIN likes l ON f.film_id = l.film_id " +
                         "LEFT JOIN mpa m ON f.mpa_id = m.mpa_id " +
                         "WHERE locate(UPPER(?), UPPER(d.DIRECTOR_NAME)) " +
-                        "order by f.rate";
+                        "order by f.rate DESC";
         return jdbcTemplate.query(sql, FilmDbStorage::mapRowToFilm, query);
     }
 
@@ -150,7 +150,17 @@ public class FilmDbStorage implements FilmStorage {
                 "SELECT * from film " +
                         "LEFT JOIN MPA M on FILM.MPA_ID = M.MPA_ID " +
                         "WHERE LOCATE(UPPER(?), UPPER(description)) " +
-                        "ORDER BY rate";
+                        "ORDER BY rate DESC";
         return jdbcTemplate.query(sql, FilmDbStorage::mapRowToFilm, query);
+    }
+
+    @Override
+    public void updateFilmRate(long filmId) {
+        String sqlQuery =
+                "UPDATE film f " +
+                        "SET f.rate = " +
+                        "(SELECT COUNT(l.user_id) FROM likes l WHERE l.film_id = ?) " +
+                        "WHERE f.film_id = ?";
+        jdbcTemplate.update(sqlQuery, filmId);
     }
 }

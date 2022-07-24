@@ -23,4 +23,6 @@ public interface FilmStorage {
     List<Film> searchByDirectors(String query);
 
     List<Film> searchByTitles(String query);
+
+    void updateFilmRate(long filmId);
 }

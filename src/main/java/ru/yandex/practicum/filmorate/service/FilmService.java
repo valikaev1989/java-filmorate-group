@@ -40,7 +40,10 @@ public class FilmService {
 
     //если б rate для этого создали, то на входи не поступали бы фильмы с rate = 4
     //и их не пришлось бы обнулять
+    //TODO перед финальным ревью поправить сторадж, чтобы не писать в него rate
     public Film addFilm(Film film) {
+        //TODO удалить костыль
+        film.setRate(0);
         long idFilm = filmStorage.addFilm(film);
         genreStorage.addGenresToFilm(film, idFilm);
         film.setId(idFilm);
@@ -74,12 +77,14 @@ public class FilmService {
 
     public void like(long id, long userId) {
         likesStorage.like(id, userId);
+        likesStorage.updateRate(id);
     }
 
     public void deleteLike(long id, long userId) {
         Film film = getFilmById(id);
         if (film.getLikes().contains(userId)) {
             likesStorage.deleteLike(id, userId);
+            likesStorage.updateRate(id);
         } else {
             throw new ModelNotFoundException("User not found with id " + userId);
         }
@@ -142,7 +147,7 @@ public class FilmService {
         return filmStorage.getPopularFilmsSharedWithFriend(userId, friendId);
     }
 
-    public List<Film> getPopularFilmsSearchByDirectorTitle(String query, List<String> by) {
+    public List<Film> searchFilm(String query, List<String> by) {
         List<Film> films = new ArrayList<>();
         for (String sortBy : by) {
             switch (sortBy) {
@@ -161,6 +166,7 @@ public class FilmService {
             film.setLikes(likesStorage.getLikes(film.getId()));
             film.setDirectors(directorsStorage.getDirectorsFromFilm(film.getId()));
         }
+        films.sort(((o1, o2) -> Integer.compare(o2.getRate(), o1.getRate())));
         return films;
     }
 }
