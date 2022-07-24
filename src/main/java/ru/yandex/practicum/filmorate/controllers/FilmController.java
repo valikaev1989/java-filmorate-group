@@ -97,9 +97,11 @@ public class FilmController {
         return filmService.getPopularFilmsSharedWithFriend(userId, friendId);
     }
 
-    @GetMapping("/fimls/search")
+    @GetMapping("/films/search")
     public List<Film> search(@RequestParam String query,
                              @RequestParam List<String> by) {
+        System.out.println(query);
+        System.out.println(by);
         return filmService.getPopularFilmsSearchByDirectorTitle(query, by);
     }
 }

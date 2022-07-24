@@ -131,14 +131,26 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     @Override
-    public List<Film> getPopularFilmsSearchByDirector(String query){
-        String sql = "select * " +
-                "from film as f " +
-                "left join FILMS_DIRECTORS as fd on f.FILM_ID = fd.FILM_ID " +
-                "left join directors as d on fd.DIRECTOR_ID = d.DIRECTOR_ID " +
-                "left join likes as l on f.FILM_ID = l.FILM_ID " +
-                "where d.DIRECTOR_NAME = (select  d.DIRECTOR_NAME from DIRECTORS where locate(?, d.DIRECTOR_NAME)) " +
-                "order by count(l.USER_ID)";
+    public List<Film> searchByDirectors(String query) {
+        String sql =
+                "SELECT * " +
+                        "FROM film f " +
+                        "LEFT JOIN films_directors fd ON f.film_id = fd.film_id " +
+                        "LEFT JOIN directors d ON fd.director_id = d.director_id " +
+                        "LEFT JOIN likes l ON f.film_id = l.film_id " +
+                        "LEFT JOIN mpa m ON f.mpa_id = m.mpa_id " +
+                        "WHERE locate(UPPER(?), UPPER(d.DIRECTOR_NAME)) " +
+                        "order by f.rate";
+        return jdbcTemplate.query(sql, FilmDbStorage::mapRowToFilm, query);
+    }
+
+    @Override
+    public List<Film> searchByTitles(String query) {
+        String sql =
+                "SELECT * from film " +
+                        "LEFT JOIN MPA M on FILM.MPA_ID = M.MPA_ID " +
+                        "WHERE LOCATE(UPPER(?), UPPER(description)) " +
+                        "ORDER BY rate";
         return jdbcTemplate.query(sql, FilmDbStorage::mapRowToFilm, query);
     }
 }

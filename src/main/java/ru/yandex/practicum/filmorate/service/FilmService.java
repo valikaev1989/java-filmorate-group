@@ -4,12 +4,14 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exceptions.ModelNotFoundException;
+import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.storage.*;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -141,6 +143,24 @@ public class FilmService {
     }
 
     public List<Film> getPopularFilmsSearchByDirectorTitle(String query, List<String> by) {
-        return filmStorage.getPopularFilmsSearchByDirector(query);
+        List<Film> films = new ArrayList<>();
+        for (String sortBy : by) {
+            switch (sortBy) {
+                case "title":
+                    films.addAll(filmStorage.searchByTitles(query));
+                    break;
+                case "director":
+                    films.addAll(filmStorage.searchByDirectors(query));
+                    break;
+                default:
+                    throw new ValidationException("Bad search arg");
+            }
+        }
+        for (Film film : films) {
+            film.setGenres(getGenresByFilmId(film.getId()));
+            film.setLikes(likesStorage.getLikes(film.getId()));
+            film.setDirectors(directorsStorage.getDirectorsFromFilm(film.getId()));
+        }
+        return films;
     }
 }
