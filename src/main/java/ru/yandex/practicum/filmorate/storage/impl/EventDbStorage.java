@@ -34,11 +34,8 @@ public class EventDbStorage implements EventsStorage {
     }
 
     @Override
-    public void addEvent(Long userId, Long entityId, EventType eventType, EventOperations operation) {
-        log.info("Start EventDbStorage.addEvent userId:{},entityId:{},eventType:{},operation:{}",
-                userId, entityId,
-                eventType, operation);
-        Event event = new Event(userId, entityId, eventType.getTitle(), operation.getTitle());
+    public void addEvent(Event event) {
+        log.info("Start EventDbStorage.addEvent event:{}.", event);
         SimpleJdbcInsert insert = new SimpleJdbcInsert(jdbcTemplate)
                 .withTableName("events")
                 .usingGeneratedKeyColumns("event_id");

@@ -5,13 +5,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exceptions.ModelNotFoundException;
 
-import ru.yandex.practicum.filmorate.model.EventOperations;
-import ru.yandex.practicum.filmorate.model.EventType;
+import ru.yandex.practicum.filmorate.model.*;
 
-import ru.yandex.practicum.filmorate.model.Director;
-
-import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.storage.*;
 
 import java.time.LocalDate;
@@ -26,19 +21,16 @@ public class FilmService {
     private final GenreStorage genreStorage;
     private final LikesStorage likesStorage;
     private final DirectorService directorsStorage;
-    private final UserStorage userStorage;
     private final EventsStorage eventsStorage;
 
     @Autowired
-    public FilmService(FilmStorage filmStorage,EventsStorage eventsStorage,
+    public FilmService(FilmStorage filmStorage, EventsStorage eventsStorage,
                        GenreStorage genreStorage,
                        LikesStorage likesStorage,
-                       UserStorage userStorage,
                        DirectorService directorsStorage) {
         this.filmStorage = filmStorage;
         this.genreStorage = genreStorage;
         this.likesStorage = likesStorage;
-        this.userStorage = userStorage;
         this.directorsStorage = directorsStorage;
         this.eventsStorage = eventsStorage;
 
@@ -81,15 +73,16 @@ public class FilmService {
 
     public void like(long filmId, long userId) {
         likesStorage.like(filmId, userId);
-        eventsStorage.addEvent(userId, filmId, EventType.LIKE, EventOperations.ADD);
-
+        Event event = new Event(userId, filmId, EventType.LIKE.getTitle(), EventOperations.ADD.getTitle());
+        eventsStorage.addEvent(event);
     }
 
     public void deleteLike(long filmId, long userId) {
         Film film = getFilmById(filmId);
         if (film.getLikes().contains(userId)) {
             likesStorage.deleteLike(filmId, userId);
-            eventsStorage.addEvent(userId, filmId, EventType.LIKE, EventOperations.REMOVE);
+            Event event = new Event(userId, filmId, EventType.LIKE.getTitle(), EventOperations.REMOVE.getTitle());
+            eventsStorage.addEvent(event);
         } else {
             throw new ModelNotFoundException("User not found with id " + userId);
         }
@@ -117,7 +110,7 @@ public class FilmService {
     }
 
     public void deleteFilm(long id) {
-        Film film = getFilmById(id);
+        getFilmById(id);
         filmStorage.deleteFilm(id);
     }
 
@@ -155,7 +148,7 @@ public class FilmService {
         }
         return films;
     }
-    
+
     public List<Film> getPopularFilmsSharedWithFriend(long userId, long friendId) {
         return filmStorage.getPopularFilmsSharedWithFriend(userId, friendId);
     }

@@ -34,7 +34,10 @@ public class ReviewService {
         if (isExistFilm(review.getFilmId()) && isExistUser(review.getUserId())) {
             long id = reviewStorage.addReview(review);
             review.setReviewId(id);
-            eventsStorage.addEvent(review.getUserId(), id, EventType.REVIEW, EventOperations.ADD);
+            Event event = new Event(review.getUserId(), id,
+                    EventType.REVIEW.getTitle(),
+                    EventOperations.ADD.getTitle());
+            eventsStorage.addEvent(event);
             return review;
         } else {
             throw new ModelNotFoundException("Model not found");
@@ -44,13 +47,19 @@ public class ReviewService {
     public Review changeReview(Review review) {
         reviewStorage.changeReview(review);
         Review review1 = reviewStorage.getReviewById(review.getReviewId());
-        eventsStorage.addEvent(review1.getUserId(), review.getReviewId(), EventType.REVIEW, EventOperations.UPDATE);
+        Event event = new Event(review1.getUserId(), review.getReviewId(),
+                EventType.REVIEW.getTitle(),
+                EventOperations.UPDATE.getTitle());
+        eventsStorage.addEvent(event);
         return review;
     }
 
     public void deleteReview(long id) {
         Review review = getReviewById(id);
-        eventsStorage.addEvent(review.getUserId(), review.getReviewId(), EventType.REVIEW, EventOperations.REMOVE);
+        Event event = new Event(review.getUserId(), review.getReviewId(),
+                EventType.REVIEW.getTitle(),
+                EventOperations.REMOVE.getTitle());
+        eventsStorage.addEvent(event);
         reviewStorage.deleteReview(id);
     }
 

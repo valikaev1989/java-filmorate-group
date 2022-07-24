@@ -11,7 +11,7 @@ public interface EventsStorage {
 
     List<Event> getEvents(Long id);
 
-    void addEvent(Long userId, Long entityId, EventType eventType, EventOperations operation);
+    void addEvent(Event event);
 
     Event getEventById(Long eventId);
 }
