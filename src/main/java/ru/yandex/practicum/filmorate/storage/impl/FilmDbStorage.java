@@ -16,6 +16,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 @Slf4j
 @Component("filmDbStorage")
@@ -115,8 +116,8 @@ public class FilmDbStorage implements FilmStorage {
     public List<Film> getPopularFilmsSharedWithFriend(long userId, long friendId) {
         String sql = "SELECT *\n" +
                 "FROM film f, MPA m\n" +
-                "WHERE  f.MPA_ID = m.MPA_ID AND film_id IN (select FILM_ID\n" +
-                "                  from LIKES\n" +
+                "WHERE  f.MPA_ID = m.MPA_ID AND film_id IN (SELECT FILM_ID\n" +
+                "                  FROM LIKES\n" +
                 "                  WHERE film_id IN (SELECT film_id\n" +
                 "                                    FROM likes\n" +
                 "                                    WHERE user_id = ?\n" +
@@ -124,9 +125,51 @@ public class FilmDbStorage implements FilmStorage {
                 "                                    SELECT film_id\n" +
                 "                                    FROM likes\n" +
                 "                                    WHERE user_id = ?)\n" +
-                "                  group by FILM_ID\n" +
-                "                  order by count(FILM_ID) desc)";
+                "                  GROUP BY FILM_ID\n" +
+                "                  ORDER BY count(FILM_ID) DESC)";
 
         return jdbcTemplate.query(sql, FilmDbStorage::mapRowToFilm, userId, friendId);
+    }
+
+    public List<Film>  getPopularFilmsByGenre(long limit, Optional<Long> genreId) {
+        String sql = "SELECT *\n" +
+                "FROM film f, MPA m\n" +
+                "WHERE f.MPA_ID = m.MPA_ID AND film_id IN (SELECT FILM_ID\n" +
+                "                                          FROM LIKES\n" +
+                "                                          WHERE film_id IN (SELECT film_id\n" +
+                "                                                            FROM GENRE_AND_FILM\n" +
+                "                                                            WHERE GENRE_ID = ?\n" +
+                "                                                            )\n" +
+                "                                          GROUP BY FILM_ID\n" +
+                "                                          ORDER BY count(FILM_ID) DESC)\n" +
+                "LIMIT ?";
+        return jdbcTemplate.query(sql, FilmDbStorage::mapRowToFilm, genreId, limit);
+    }
+
+    public List<Film>  getPopularFilmsByYear(long limit, Optional<Long> year) {
+        String sql = "SELECT *\n" +
+                "FROM film f, MPA m\n" +
+                "WHERE f.MPA_ID = m.MPA_ID AND film_id IN (select FILM_ID\n" +
+                "                                          from LIKES\n" +
+                "                                          WHERE EXTRACT(DAY FROM F.RELEASE_DATE) = ?\n" +
+                "                                          group by FILM_ID\n" +
+                "                                          order by count(FILM_ID) desc)\n" +
+                "limit ?";
+        return jdbcTemplate.query(sql, FilmDbStorage::mapRowToFilm, year, limit);
+    }
+
+    public List<Film> getPopularFilmsByGenreAndYear(long limit, Optional<Long> genreId, Optional<Long> year){
+        String sql = "SELECT *\n" +
+                "FROM film f, MPA m\n" +
+                "WHERE f.MPA_ID = m.MPA_ID AND film_id IN (SELECT FILM_ID\n" +
+                "                                          FROM LIKES\n" +
+                "                                          WHERE film_id IN (SELECT film_id\n" +
+                "                                                            FROM GENRE_AND_FILM\n" +
+                "                                                            WHERE GENRE_ID = ?\n" +
+                "                                                            ) AND EXTRACT(DAY FROM F.RELEASE_DATE) = ?\n" +
+                "                                          GROUP BY FILM_ID\n" +
+                "                                          ORDER BY count(FILM_ID) DESC)\n" +
+                "LIMIT ?";
+        return jdbcTemplate.query(sql, FilmDbStorage::mapRowToFilm, genreId, year, limit);
     }
 }

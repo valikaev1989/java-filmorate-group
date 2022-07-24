@@ -6,10 +6,12 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.Review;
 import ru.yandex.practicum.filmorate.service.FilmService;
 
 import javax.validation.Valid;
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @Slf4j
@@ -66,11 +68,11 @@ public class FilmController {
         filmService.deleteLike(id, userId);
     }
 
-    @GetMapping("/films/popular")
+  /* @GetMapping("/films/popular")
     public List<Film> getPopularFilms(@RequestParam(defaultValue = "10") int count) {
         log.info("Get popular films");
         return filmService.getPopularFilms(count);
-    }
+    }*/
 
     @GetMapping("/films/director/{directorId}")
     public List<Film> getSortFilmByDirector(@PathVariable long directorId,
@@ -95,5 +97,20 @@ public class FilmController {
     public List<Film> getPopularFilmsSharedWithFriend(@RequestParam long userId, @RequestParam long friendId){
         log.info("Get popular films shared with a friend.");
         return filmService.getPopularFilmsSharedWithFriend(userId, friendId);
+    }
+
+    /** Вывод самых популярных фильмов по жанру и годам
+     * API: GET /films/popular?count={limit}&genreId={genreId}&year={year}
+     * @param limit - лимит вывода фильмов
+     * @param genreId - идентификатор жанра
+     * @param year - год выпуска фильма
+     * @return Возвращает список самых популярных фильмов указанного жанра за нужный год.
+     */
+    @GetMapping("/films/popular")
+    public List<Film> getPopularFilmsByGenreAndYear(@RequestParam(defaultValue = "10") int limit,
+                                                    @RequestParam Optional<Long> genreId,
+                                                    @RequestParam Optional<Long> year){
+        log.info("Get list of the most popular films by genre and(or) year.");
+        return filmService.getPopularFilmsByGenreAndYear(limit, genreId, year);
     }
 }

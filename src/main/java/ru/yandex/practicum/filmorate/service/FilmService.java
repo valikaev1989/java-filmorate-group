@@ -12,6 +12,7 @@ import ru.yandex.practicum.filmorate.storage.*;
 import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 @Slf4j
@@ -138,5 +139,19 @@ public class FilmService {
     
     public List<Film> getPopularFilmsSharedWithFriend(long userId, long friendId) {
         return filmStorage.getPopularFilmsSharedWithFriend(userId, friendId);
+    }
+
+    public List<Film> getPopularFilmsByGenreAndYear(int limit, Optional<Long> genreId, Optional<Long> year){
+        if (!genreId.isPresent() && !year.isPresent()) {
+            return getPopularFilms(limit);
+        }
+
+        if (genreId.isPresent() && !year.isPresent()) {
+            return filmStorage.getPopularFilmsByGenre(limit, genreId);
+        }
+
+        if (!genreId.isPresent() && year.isPresent()) {
+            return filmStorage.getPopularFilmsByYear(limit, year);
+        } else return filmStorage.getPopularFilmsByGenreAndYear(limit, genreId, year);
     }
 }
