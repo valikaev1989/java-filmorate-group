@@ -92,7 +92,7 @@ public class UserDbStorage implements UserStorage {
     private long rowMapToLongIdFriends(ResultSet resultSet, int rowNum) throws SQLException {
         return resultSet.getLong("friend_id");
     }
-
+    @Override
     public boolean deleteUser(long id) {
         String sql = "delete from userr where user_id = ?";
         return jdbcTemplate.update(sql, id) > 0;
@@ -111,4 +111,5 @@ public class UserDbStorage implements UserStorage {
         LocalDate birthdate = resultSet.getDate("birth_date").toLocalDate();
         return new User(id, email, login, name, birthdate);
     }
+
 }

@@ -12,4 +12,12 @@ public interface FilmStorage {
     List<Film> getFilms();
 
     Film getFilmById(long id);
+
+    boolean deleteFilm(long id);
+  
+    List<Film> getSortFilmByDirectorSortByYear(Long directorId);
+
+    List<Film> getSortFilmByDirectorSortByLikes(Long directorId);
+    
+    List<Film> getPopularFilmsSharedWithFriend(long userId, long friendId);
 }

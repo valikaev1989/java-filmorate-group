@@ -74,9 +74,17 @@ public class UserController {
         log.info(String.format("Get user %d", id));
         return userService.getUserById(id);
     }
+
     @GetMapping("/{id}/feed")
     public List<Event> getEvents(@PathVariable("id") Long id) {
         log.info("Получен запрос к эндпоинту /users/{id}/feed. Метод GET");
         return eventsService.getEvents(id);
+
+
+    @DeleteMapping("{id}")
+    public void deleteFilmById(@PathVariable long id){
+        log.info("Delete user %d", id);
+        userService.deleteUser(id);
+
     }
 }
