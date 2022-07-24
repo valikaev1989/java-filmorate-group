@@ -130,6 +130,7 @@ public class FilmDbStorage implements FilmStorage {
 
         return jdbcTemplate.query(sql, FilmDbStorage::mapRowToFilm, userId, friendId);
     }
+
     @Override
     public boolean deleteFilm(long id) {
         String sql = "delete from film where film_id = ?";

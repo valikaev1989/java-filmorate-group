@@ -24,7 +24,8 @@ public class FilmService {
     private final EventsStorage eventsStorage;
 
     @Autowired
-    public FilmService(FilmStorage filmStorage, EventsStorage eventsStorage,
+    public FilmService(FilmStorage filmStorage,
+                       EventsStorage eventsStorage,
                        GenreStorage genreStorage,
                        LikesStorage likesStorage,
                        DirectorService directorsStorage) {
@@ -115,12 +116,12 @@ public class FilmService {
     }
 
     public void deleteDirectorInFilm(long filmId, long directorId) {
-        log.info("Start filmService. Метод deleteDirectorInFilm. directorId:{},  filmId{}.", directorId, filmId);
+        log.info("Старт filmService. Метод deleteDirectorInFilm. directorId:{},  filmId{}.", directorId, filmId);
         directorsStorage.deleteDirectorFromFilm(filmId, directorId);
     }
 
     public void addDirectorInFilm(Film film) {
-        log.info("Start filmService. Метод addDirectorInFilm. film:{}.", film);
+        log.info("Старт filmService. Метод addDirectorInFilm. film:{}.", film);
         List<Director> directors = film.getDirectors();
         for (Director director : directors) {
             directorsStorage.addDirectorToFilm(film, director.getId());
@@ -128,7 +129,7 @@ public class FilmService {
     }
 
     public List<Film> getSortFilmByDirector(Long directorId, String sortBy) {
-        log.info("Start filmService. Метод getSortFilmByDirector. directorId:{}, parameter:{}.", directorId, sortBy);
+        log.info("Старт filmService. Метод getSortFilmByDirector. directorId:{}, parameter:{}.", directorId, sortBy);
         directorsStorage.getDirector(directorId);
         List<Film> films;
         switch (sortBy) {

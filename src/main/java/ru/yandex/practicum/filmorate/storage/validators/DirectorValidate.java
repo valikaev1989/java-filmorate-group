@@ -48,7 +48,8 @@ public class DirectorValidate {
         if (director.getName().isEmpty() || director.getName().equals(" ")) {
             log.error("Имя директора не должен быть пустым");
             throw new ValidationException("имя директора пустое");
-        }if(director.getName().length()>50){
+        }
+        if (director.getName().length() > 50) {
             log.error("Имя директора не должен быть более 50 символов");
             throw new ValidationException("имя директора длиннее 50 символов");
         }

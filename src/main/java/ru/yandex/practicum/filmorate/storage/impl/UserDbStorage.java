@@ -35,7 +35,7 @@ public class UserDbStorage implements UserStorage {
     @Override
     public User addUser(User user) {
         List<User> users = getAllUsers();
-        if(users.contains(user)) {
+        if (users.contains(user)) {
             throw new ModelAlreadyExistException("User already exist");
         } else {
             SimpleJdbcInsert insert = new SimpleJdbcInsert(jdbcTemplate)
@@ -67,7 +67,7 @@ public class UserDbStorage implements UserStorage {
     @Override
     public User findUserById(long id) {
         Collection<User> users = getAllUsers();
-        if(users.stream().noneMatch(x -> x.getId() == id)) {
+        if (users.stream().noneMatch(x -> x.getId() == id)) {
             throw new ModelNotFoundException("User not found");
         } else {
             String sql = "SELECT * FROM userr WHERE user_id = ?";
@@ -92,6 +92,7 @@ public class UserDbStorage implements UserStorage {
     private long rowMapToLongIdFriends(ResultSet resultSet, int rowNum) throws SQLException {
         return resultSet.getLong("friend_id");
     }
+
     @Override
     public boolean deleteUser(long id) {
         String sql = "delete from userr where user_id = ?";
@@ -111,5 +112,4 @@ public class UserDbStorage implements UserStorage {
         LocalDate birthdate = resultSet.getDate("birth_date").toLocalDate();
         return new User(id, email, login, name, birthdate);
     }
-
 }

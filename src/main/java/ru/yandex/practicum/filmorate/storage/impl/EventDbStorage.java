@@ -27,21 +27,21 @@ public class EventDbStorage implements EventsStorage {
 
     @Override
     public List<Event> getEvents(Long userId) {
-        log.info("Start EventDbStorage.getEvents userId:{}.", userId);
+        log.info("Старт EventDbStorage.getEvents userId:{}.", userId);
         List<Event> events = jdbcTemplate.query(GET_EVENTS, this::mapRowToEvent, userId);
-        log.info("End EventDbStorage.getEvents userId:{}.List<Event> events.size = {}", userId, events.size());
+        log.info("Завершение EventDbStorage.getEvents userId:{}.List<Event> events.size = {}", userId, events.size());
         return events;
     }
 
     @Override
     public void addEvent(Event event) {
-        log.info("Start EventDbStorage.addEvent event:{}.", event);
+        log.info("Старт EventDbStorage.addEvent event:{}.", event);
         SimpleJdbcInsert insert = new SimpleJdbcInsert(jdbcTemplate)
                 .withTableName("events")
                 .usingGeneratedKeyColumns("event_id");
         long eventId = insert.executeAndReturnKey(event.toMapEvent()).longValue();
         Event event1 = getEventById(eventId);
-        log.info("End EventDbStorage.addEvent event добавлен:{}.", event1);
+        log.info("Завершение EventDbStorage.addEvent event добавлен:{}.", event1);
     }
 
     @Override
