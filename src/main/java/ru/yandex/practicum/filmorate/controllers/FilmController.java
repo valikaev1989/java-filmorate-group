@@ -100,6 +100,7 @@ public class FilmController {
     @GetMapping("/films/search")
     public List<Film> search(@RequestParam String query,
                              @RequestParam List<String> by) {
+        log.info("Searching substring '{}' at films {}", query, by);
         return filmService.searchFilm(query, by);
     }
 }

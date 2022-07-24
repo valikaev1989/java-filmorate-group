@@ -158,7 +158,7 @@ public class FilmService {
                     films.addAll(filmStorage.searchByDirectors(query));
                     break;
                 default:
-                    throw new ValidationException("Bad search arg");
+                    throw new ValidationException("Bad search argument");
             }
         }
         for (Film film : films) {
