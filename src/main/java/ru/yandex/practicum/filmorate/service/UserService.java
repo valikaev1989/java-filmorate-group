@@ -51,14 +51,14 @@ public class UserService {
             throw new ModelNotFoundException("User not found");
         } else {
             friendStorage.addFriendToUser(userId, friendId);
-            Event event = new Event(userId, friendId, EventType.FRIEND.getTitle(), EventOperations.ADD.getTitle());
+            Event event = new Event(userId, friendId, EventType.FRIEND, EventOperations.ADD);
             eventsStorage.addEvent(event);
         }
     }
 
     public void deleteFromFriend(long userId, long friendId) {
         friendStorage.deleteFromFriends(userId, friendId);
-        Event event = new Event(userId, friendId, EventType.FRIEND.getTitle(), EventOperations.REMOVE.getTitle());
+        Event event = new Event(userId, friendId, EventType.FRIEND, EventOperations.REMOVE);
         eventsStorage.addEvent(event);
     }
 

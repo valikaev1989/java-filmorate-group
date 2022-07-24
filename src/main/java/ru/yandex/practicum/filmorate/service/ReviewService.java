@@ -35,8 +35,8 @@ public class ReviewService {
             long id = reviewStorage.addReview(review);
             review.setReviewId(id);
             Event event = new Event(review.getUserId(), id,
-                    EventType.REVIEW.getTitle(),
-                    EventOperations.ADD.getTitle());
+                    EventType.REVIEW,
+                    EventOperations.ADD);
             eventsStorage.addEvent(event);
             return review;
         } else {
@@ -48,8 +48,8 @@ public class ReviewService {
         reviewStorage.changeReview(review);
         Review review1 = reviewStorage.getReviewById(review.getReviewId());
         Event event = new Event(review1.getUserId(), review.getReviewId(),
-                EventType.REVIEW.getTitle(),
-                EventOperations.UPDATE.getTitle());
+                EventType.REVIEW,
+                EventOperations.UPDATE);
         eventsStorage.addEvent(event);
         return review;
     }
@@ -57,8 +57,8 @@ public class ReviewService {
     public void deleteReview(long id) {
         Review review = getReviewById(id);
         Event event = new Event(review.getUserId(), review.getReviewId(),
-                EventType.REVIEW.getTitle(),
-                EventOperations.REMOVE.getTitle());
+                EventType.REVIEW,
+                EventOperations.REMOVE);
         eventsStorage.addEvent(event);
         reviewStorage.deleteReview(id);
     }

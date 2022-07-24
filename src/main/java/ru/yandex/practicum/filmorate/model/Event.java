@@ -13,11 +13,11 @@ public class Event {
     private Long eventId;
     private Long userId;
     private Long entityId;
-    private String eventType;
-    private String operation;
+    private EventType eventType;
+    private EventOperations operation;
     private Long timestamp;
 
-    public Event(Long eventId, Long userId, Long entityId, String eventType, String operation, Long timestamp) {
+    public Event(Long eventId, Long userId, Long entityId, EventType eventType, EventOperations operation, Long timestamp) {
         this.eventId = eventId;
         this.userId = userId;
         this.entityId = entityId;
@@ -26,7 +26,7 @@ public class Event {
         this.timestamp = timestamp;
     }
 
-    public Event(Long userId, Long entityId, String eventType, String operation) {
+    public Event(Long userId, Long entityId, EventType eventType, EventOperations operation) {
         this.userId = userId;
         this.entityId = entityId;
         this.eventType = eventType;

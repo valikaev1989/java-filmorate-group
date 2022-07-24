@@ -73,7 +73,7 @@ public class FilmService {
 
     public void like(long filmId, long userId) {
         likesStorage.like(filmId, userId);
-        Event event = new Event(userId, filmId, EventType.LIKE.getTitle(), EventOperations.ADD.getTitle());
+        Event event = new Event(userId, filmId, EventType.LIKE, EventOperations.ADD);
         eventsStorage.addEvent(event);
     }
 
@@ -81,7 +81,7 @@ public class FilmService {
         Film film = getFilmById(filmId);
         if (film.getLikes().contains(userId)) {
             likesStorage.deleteLike(filmId, userId);
-            Event event = new Event(userId, filmId, EventType.LIKE.getTitle(), EventOperations.REMOVE.getTitle());
+            Event event = new Event(userId, filmId, EventType.LIKE, EventOperations.REMOVE);
             eventsStorage.addEvent(event);
         } else {
             throw new ModelNotFoundException("User not found with id " + userId);
