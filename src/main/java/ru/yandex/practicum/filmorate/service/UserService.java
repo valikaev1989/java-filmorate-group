@@ -3,13 +3,9 @@ package ru.yandex.practicum.filmorate.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exceptions.ModelNotFoundException;
-
 import ru.yandex.practicum.filmorate.model.Event;
 import ru.yandex.practicum.filmorate.model.EventOperations;
 import ru.yandex.practicum.filmorate.model.EventType;
-
-import ru.yandex.practicum.filmorate.model.Film;
-
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.EventsStorage;
 import ru.yandex.practicum.filmorate.storage.FriendStorage;
@@ -93,7 +89,12 @@ public class UserService {
     }
 
     public void deleteUser(long id) {
-        User user = getUserById(id);
+        getUserById(id);
         userStorage.deleteUser(id);
+    }
+
+    public List<Event> getEvents(Long id) {
+        getUserById(id);
+        return eventsStorage.getEvents(id);
     }
 }

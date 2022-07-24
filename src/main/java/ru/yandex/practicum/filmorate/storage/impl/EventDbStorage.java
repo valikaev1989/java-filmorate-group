@@ -17,7 +17,7 @@ import java.util.List;
 @Slf4j
 @Component
 public class EventDbStorage implements EventsStorage {
-    private static final String GET_EVENTS = "SELECT * FROM events WHERE user_id = ?";
+    private static final String GET_EVENTS = "SELECT * FROM events WHERE event_user_id = ?";
     private static final String GET_EVENT_BY_ID = "SELECT * FROM events WHERE event_id = ?";
     private final JdbcTemplate jdbcTemplate;
 
@@ -38,7 +38,7 @@ public class EventDbStorage implements EventsStorage {
         log.info("Start EventDbStorage.addEvent userId:{},entityId:{},eventType:{},operation:{}",
                 userId, entityId,
                 eventType, operation);
-        Event event = new Event(userId, entityId, eventType.getType(), operation.getOperation());
+        Event event = new Event(userId, entityId, eventType.getTitle(), operation.getTitle());
         SimpleJdbcInsert insert = new SimpleJdbcInsert(jdbcTemplate)
                 .withTableName("events")
                 .usingGeneratedKeyColumns("event_id");
@@ -56,7 +56,7 @@ public class EventDbStorage implements EventsStorage {
         if (rs.getRow() != 0) {
             return new Event(
                     rs.getLong("event_id"),
-                    rs.getLong("user_id"),
+                    rs.getLong("event_user_id"),
                     rs.getLong("entity_id"),
                     rs.getString("event_type"),
                     rs.getString("event_operation"),

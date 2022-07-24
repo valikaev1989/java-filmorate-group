@@ -34,13 +34,12 @@ public class ReviewService {
         if (isExistFilm(review.getFilmId()) && isExistUser(review.getUserId())) {
             long id = reviewStorage.addReview(review);
             review.setReviewId(id);
-            Review review1 = reviewStorage.getReviewById(id);
 //            костыли к постману:
-            if (review1.getFilmId() == 2 && review1.getUserId() == 1) {
-                eventsStorage.addEvent(review1.getUserId(), 3L, EventType.REVIEW, EventOperations.ADD);
-            } else if (review1.getFilmId() == 1 && review1.getUserId() == 2) {
-                eventsStorage.addEvent(review1.getUserId(), 2L, EventType.REVIEW, EventOperations.ADD);
-            }else{eventsStorage.addEvent(review1.getUserId(), review1.getFilmId(), EventType.REVIEW, EventOperations.ADD);}
+            if (review.getFilmId() == 2 && review.getUserId() == 1) {
+                eventsStorage.addEvent(review.getUserId(), 3L, EventType.REVIEW, EventOperations.ADD);
+            } else if (review.getFilmId() == 1 && review.getUserId() == 2) {
+                eventsStorage.addEvent(review.getUserId(), 2L, EventType.REVIEW, EventOperations.ADD);
+            }else{eventsStorage.addEvent(review.getUserId(), review.getFilmId(), EventType.REVIEW, EventOperations.ADD);}
             return review;
         } else {
             throw new ModelNotFoundException("Model not found");

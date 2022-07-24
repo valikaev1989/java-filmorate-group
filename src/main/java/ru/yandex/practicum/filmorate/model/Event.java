@@ -36,7 +36,7 @@ public class Event {
 
     public Map<String, Object> toMapEvent() {
         Map<String, Object> values = new HashMap<>();
-        values.put("user_id", userId);
+        values.put("event_user_id", userId);
         values.put("entity_id", entityId);
         values.put("event_type", eventType);
         values.put("event_operation", operation);

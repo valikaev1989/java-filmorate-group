@@ -5,13 +5,13 @@ public enum EventType {
     FRIEND("FRIEND"),
     REVIEW("REVIEW"),
     ;
-    private final String type;
+    private final String title;
 
-    EventType(String type) {
-        this.type = type;
+    EventType(String title) {
+        this.title = title;
     }
 
-    public String getType() {
-        return type;
+    public String getTitle() {
+        return title;
     }
 }

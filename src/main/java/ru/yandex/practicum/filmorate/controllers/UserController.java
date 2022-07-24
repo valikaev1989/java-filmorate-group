@@ -6,7 +6,6 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.Event;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.service.EventsService;
 import ru.yandex.practicum.filmorate.service.UserService;
 
 import javax.validation.Valid;
@@ -18,12 +17,10 @@ import java.util.List;
 @Validated
 public class UserController {
     private final UserService userService;
-    private final EventsService eventsService;
 
     @Autowired
-    public UserController(UserService userService, EventsService eventsService) {
+    public UserController(UserService userService) {
         this.userService = userService;
-        this.eventsService = eventsService;
     }
 
     @GetMapping
@@ -78,7 +75,7 @@ public class UserController {
     @GetMapping("/{id}/feed")
     public List<Event> getEvents(@PathVariable("id") Long id) {
         log.info("Получен запрос к эндпоинту /users/{id}/feed. Метод GET");
-        return eventsService.getEvents(id);
+        return userService.getEvents(id);
     }
 
     @DeleteMapping("/{id}")

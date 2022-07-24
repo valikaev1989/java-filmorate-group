@@ -4,13 +4,13 @@ public enum EventOperations {
     REMOVE("REMOVE"),
     ADD("ADD"),
     UPDATE("UPDATE");
-    private final String operation;
+    private final String title;
 
-    EventOperations(String operation) {
-        this.operation = operation;
+    EventOperations(String title) {
+        this.title = title;
     }
 
-    public String getOperation() {
-        return operation;
+    public String getTitle() {
+        return title;
     }
 }
