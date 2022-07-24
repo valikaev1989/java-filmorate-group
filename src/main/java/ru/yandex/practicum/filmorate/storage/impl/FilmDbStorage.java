@@ -97,8 +97,11 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public List<Film> getFilms(List<Long> ids) {
-        String sqlQueryTemplate = "SELECT * FROM film AS f LEFT JOIN mpa AS m ON f.mpa_id = m.mpa_id " +
-                "WHERE film_id IN (%s)";
+        String sqlQueryTemplate =
+                "SELECT * " +
+                        "FROM film AS f " +
+                        "LEFT JOIN mpa AS m ON f.mpa_id = m.mpa_id " +
+                        "WHERE film_id IN (%s)";
         String placeholders = String.join(",", Collections.nCopies(ids.size(), "?"));
         String sqlQuery = String.format(sqlQueryTemplate, placeholders);
         return jdbcTemplate.query(sqlQuery, ids.toArray(), FilmDbStorage::mapRowToFilm);
@@ -114,7 +117,6 @@ public class FilmDbStorage implements FilmStorage {
             int rate = resultSet.getInt("rate");
             Film film = new Film(name, description, releaseDate, duration, rate);
             film.setId(idFilm);
-            //film.setMpa(getMpa(idFilm));
             film.setMpa(new Mpa(resultSet.getInt("mpa_id"), resultSet.getString("mpa_name")));
             return film;
         } else {
@@ -139,6 +141,7 @@ public class FilmDbStorage implements FilmStorage {
 
         return jdbcTemplate.query(sql, FilmDbStorage::mapRowToFilm, userId, friendId);
     }
+
     @Override
     public boolean deleteFilm(long id) {
         String sql = "delete from film where film_id = ?";

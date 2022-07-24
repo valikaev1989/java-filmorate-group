@@ -72,10 +72,12 @@ public class LikesDbStorage implements LikesStorage {
 
     @Override
     public List<Long> getRecommendations(long userId) {
-        String sqlQuery = "SELECT film_id FROM likes WHERE user_id = (SELECT user_id FROM likes WHERE film_id IN " +
-        "(SELECT film_id FROM likes WHERE user_id = ?) AND user_id <> ? GROUP BY user_id " +
-                "ORDER BY COUNT(film_id) DESC LIMIT 1) AND film_id NOT IN " +
-                "(SELECT film_id FROM likes WHERE user_id = ?)";
+        String sqlQuery =
+                "SELECT film_id FROM likes WHERE user_id = " +
+                        "(SELECT user_id FROM likes WHERE film_id IN " +
+                        "(SELECT film_id FROM likes WHERE user_id = ?) AND user_id <> ? " +
+                        "GROUP BY user_id ORDER BY COUNT(film_id) DESC LIMIT 1)" +
+                        " AND film_id NOT IN (SELECT film_id FROM likes WHERE user_id = ?)";
         return jdbcTemplate.query(sqlQuery, this::makeFilmId, userId, userId, userId);
     }
 
