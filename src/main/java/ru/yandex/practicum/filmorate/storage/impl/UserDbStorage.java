@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.storage.impl;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Component;
@@ -47,50 +48,37 @@ public class UserDbStorage implements UserStorage {
     }
 
     @Override
-    public User changeUSer(User user) {
-        Collection<User> users = getAllUsers();
-        if (users.stream().anyMatch(x -> x.getId() == user.getId())) {
-            String sql = "update users set email = ?, login = ?, user_name = ?, birth_date = ?" +
-                    " where user_id = ?";
-            jdbcTemplate.update(sql,
-                    user.getEmail(),
-                    user.getLogin(),
-                    user.getName(),
-                    user.getBirthday(),
-                    user.getId());
-            return findUserById(user.getId());
-        } else {
-            throw new ModelNotFoundException("User not found with id " + user.getId());
-        }
+    public User changeUser(User user) {
+        String sql = "update users set email = ?, login = ?, user_name = ?, birth_date = ?" +
+                " where user_id = ?";
+        jdbcTemplate.update(sql,
+                user.getEmail(),
+                user.getLogin(),
+                user.getName(),
+                user.getBirthday(),
+                user.getId());
+        return findUserById(user.getId());
     }
 
     @Override
     public User findUserById(long id) {
-        Collection<User> users = getAllUsers();
-        if (users.stream().noneMatch(x -> x.getId() == id)) {
-            throw new ModelNotFoundException("User not found");
-        } else {
+        try {
             String sql = "SELECT * FROM users WHERE user_id = ?";
             return jdbcTemplate.queryForObject(sql, this::mapRowToUser, id);
+        } catch (EmptyResultDataAccessException ex) {
+            throw new ModelNotFoundException("User wasn't found");
         }
     }
 
     @Override
     public List<User> getUserFriends(long id) {
-        List<User> userFriends = new ArrayList<>();
+        String sqlQuery = "SELECT * FROM users " +
+                "WHERE user_id IN " +
+                "(SELECT friend_id " +
+                "FROM friends " +
+                "WHERE user_id = ?)";
 
-        String sql = "select friend_id from friends where user_id = ?";
-
-        List<Long> friendsId = jdbcTemplate.query(sql, this::rowMapToLongIdFriends, id);
-
-        for (Long idLong : friendsId) {
-            userFriends.add(findUserById(idLong));
-        }
-        return userFriends;
-    }
-
-    private long rowMapToLongIdFriends(ResultSet resultSet, int rowNum) throws SQLException {
-        return resultSet.getLong("friend_id");
+        return jdbcTemplate.query(sqlQuery, this::mapRowToUser, id);
     }
 
     @Override
