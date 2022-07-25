@@ -41,7 +41,6 @@ public class FilmService {
     }
 
     public Film addFilm(Film film) {
-        //TODO удалить костыль
         film.setRate(0);
         long idFilm = filmStorage.addFilm(film);
         genreStorage.addGenresToFilm(film, idFilm);
@@ -108,7 +107,6 @@ public class FilmService {
         return films;
     }
 
-    //todo это вынести в валидацию
     public boolean checkDate(Film film) {
         return film.getReleaseDate().isAfter(LocalDate.of(1895, 12, 28));
     }
