@@ -5,7 +5,6 @@ import ru.yandex.practicum.filmorate.model.Film;
 
 import java.util.List;
 
-//TODO перед финальным ревью перенести на пакет выше
 public interface DirectorStorage {
     Director addDirector(Director director);
 

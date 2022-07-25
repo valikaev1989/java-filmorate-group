@@ -63,7 +63,6 @@ public class FilmService {
         return films;
     }
 
-    //todo по хорошему это должно быть в genre service
     private Set<Genre> getGenresByFilmId(long filmId) {
         return new HashSet<>(genreStorage.getFilmGenres(filmId));
     }

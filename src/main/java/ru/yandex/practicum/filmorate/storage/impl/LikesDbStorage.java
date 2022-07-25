@@ -3,8 +3,6 @@ package ru.yandex.practicum.filmorate.storage.impl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
-import ru.yandex.practicum.filmorate.model.EventOperations;
-import ru.yandex.practicum.filmorate.model.EventType;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.LikesStorage;
 
@@ -48,18 +46,12 @@ public class LikesDbStorage implements LikesStorage {
         return new HashSet<>(likes);
     }
 
-    //TODO удалить комментарии + изменить запрос на поле rate
-    //именно из за этой закомментированной строки ниже и получилось что у тебя тесты не падали на выводе пополярных фильмов
     @Override
     public List<Film> getPopularFilms(int count) {
-        String sql = "select f.FILM_ID, f.RELEASE_DATE, f.RATE, f.DESCRIPTION, f.DURATION_FILM, f.FILM_NAME, MPA.MPA_ID, MPA.MPA_NAME, count(USER_ID) " +
-                "from FILM as f " +
-                "left join LIKES L on F.FILM_ID = L.FILM_ID " +
-                "left join MPA on f.MPA_ID = MPA.MPA_ID " +
-                "group by f.FILM_ID, f.RELEASE_DATE, f.RATE, f.DESCRIPTION, f.DURATION_FILM, f.FILM_NAME, f.MPA_ID, MPA.MPA_NAME " +
-                "order by count(l.USER_ID) desc " +
+        String sql = "SELECT * FROM film f " +
+                "LEFT JOIN mpa m ON f.mpa_id = m.mpa_id " +
+                "ORDER BY f.rate DESC " +
                 "limit ?";
-        //String sql = "select * from FILM f, MPA m where f.MPA_ID = m.MPA_ID order by RATE desc limit ?";
         return jdbcTemplate.query(sql, FilmDbStorage::mapRowToFilm, count);
     }
 
@@ -67,11 +59,14 @@ public class LikesDbStorage implements LikesStorage {
         return resultSet.getLong("user_id");
     }
 
+    @Override
     public void updateRate(long filmId) {
         String sql = "update FILM f set rate = (select count(l.user_id) " +
                 "from LIKES l where l.film_id = f.film_id) where film_id = ?";
         jdbcTemplate.update(sql, filmId);
-    }    @Override
+    }
+
+    @Override
     public List<Long> getRecommendations(long userId) {
         String sqlQuery =
                 "SELECT film_id FROM likes WHERE user_id = " +
