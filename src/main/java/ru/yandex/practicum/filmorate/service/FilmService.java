@@ -12,6 +12,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 @Slf4j
@@ -174,6 +175,26 @@ public class FilmService {
         return filmStorage.getPopularFilmsSharedWithFriend(userId, friendId);
     }
 
+    public List<Film> getPopularFilmsByGenreAndYear(int limit, Optional<Long> genreId, Optional<Long> year){
+        List<Film> films;
+
+        if (genreId.isEmpty() && year.isEmpty()) {
+            films =  getPopularFilms(limit);
+        } else if (genreId.isPresent() && year.isEmpty()) {
+            films =  filmStorage.getPopularFilmsByGenre(limit, genreId.get());
+        } else if (genreId.isEmpty()) {
+            films =  filmStorage.getPopularFilmsByYear(limit, year.get());
+        } else {
+            films =  filmStorage.getPopularFilmsByGenreAndYear(limit, genreId.get(), year.get());
+        }
+        for (Film film : films) {
+            film.setGenres(getGenresByFilmId(film.getId()));
+            film.setLikes(likesStorage.getLikes(film.getId()));
+            film.setDirectors(directorsStorage.getDirectorsFromFilm(film.getId()));
+        }
+        return films;
+    }
+
     public List<Film> getRecommendations(long userId) {
         userStorage.findUserById(userId);
         List<Long> recommendationsIds = likesStorage.getRecommendations(userId);
@@ -202,11 +223,7 @@ public class FilmService {
                     throw new ValidationException("Bad search argument");
             }
         }
-        for (Film film : films) {
-            film.setGenres(getGenresByFilmId(film.getId()));
-            film.setLikes(likesStorage.getLikes(film.getId()));
-            film.setDirectors(directorsStorage.getDirectorsFromFilm(film.getId()));
-        }
+
         films.sort(((o1, o2) -> Integer.compare(o2.getRate(), o1.getRate())));
         return films;
     }
