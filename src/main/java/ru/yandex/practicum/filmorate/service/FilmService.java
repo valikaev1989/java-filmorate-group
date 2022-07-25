@@ -18,6 +18,7 @@ import java.util.Set;
 @Service
 public class FilmService {
     private final FilmStorage filmStorage;
+    private final UserStorage userStorage;
     private final GenreStorage genreStorage;
     private final LikesStorage likesStorage;
     private final DirectorService directorsStorage;
@@ -25,6 +26,7 @@ public class FilmService {
 
     @Autowired
     public FilmService(FilmStorage filmStorage,
+                       UserStorage userStorage,
                        EventsStorage eventsStorage,
                        GenreStorage genreStorage,
                        LikesStorage likesStorage,
@@ -34,7 +36,7 @@ public class FilmService {
         this.likesStorage = likesStorage;
         this.directorsStorage = directorsStorage;
         this.eventsStorage = eventsStorage;
-
+        this.userStorage = userStorage;
     }
 
     //если б rate для этого создали, то на входи не поступали бы фильмы с rate = 4
