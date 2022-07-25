@@ -15,6 +15,7 @@ import ru.yandex.practicum.filmorate.storage.FilmStorage;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDate;
+import java.util.Collections;
 import java.util.List;
 
 @Slf4j
@@ -54,9 +55,10 @@ public class FilmDbStorage implements FilmStorage {
     @Override
     public void changeFilm(Film film) {
         if (getFilms().stream().anyMatch(x -> x.getId() == film.getId())) {
-            String sql = "update film set film_name = ?, description = ?, release_date = ?, duration_film = ?, mpa_id = ?" +
-                    "where film_id = ?";
-            jdbcTemplate.update(sql, film.getName(),
+            String sql = "update film set film_name = ?, description = ?, release_date = ?, duration_film = ?," +
+                    " mpa_id = ? where film_id = ?";
+            jdbcTemplate.update(sql,
+                    film.getName(),
                     film.getDescription(),
                     film.getReleaseDate(),
                     film.getDuration(),
@@ -83,7 +85,6 @@ public class FilmDbStorage implements FilmStorage {
         }
     }
 
-
     @Override
     public List<Film> getSortFilmByDirectorSortByYear(Long directorId) {
         return jdbcTemplate.query(GET_SORTED_FILMS_BY_YEAR, FilmDbStorage::mapRowToFilm, directorId);
@@ -92,6 +93,18 @@ public class FilmDbStorage implements FilmStorage {
     @Override
     public List<Film> getSortFilmByDirectorSortByLikes(Long directorId) {
         return jdbcTemplate.query(GET_SORT_BY_LIKES_FILMS, FilmDbStorage::mapRowToFilm, directorId);
+    }
+
+    @Override
+    public List<Film> getFilms(List<Long> ids) {
+        String sqlQueryTemplate =
+                "SELECT * " +
+                        "FROM film AS f " +
+                        "LEFT JOIN mpa AS m ON f.mpa_id = m.mpa_id " +
+                        "WHERE film_id IN (%s)";
+        String placeholders = String.join(",", Collections.nCopies(ids.size(), "?"));
+        String sqlQuery = String.format(sqlQueryTemplate, placeholders);
+        return jdbcTemplate.query(sqlQuery, ids.toArray(), FilmDbStorage::mapRowToFilm);
     }
 
     public static Film mapRowToFilm(ResultSet resultSet, int rowNum) throws SQLException {
@@ -104,7 +117,6 @@ public class FilmDbStorage implements FilmStorage {
             int rate = resultSet.getInt("rate");
             Film film = new Film(name, description, releaseDate, duration, rate);
             film.setId(idFilm);
-            //film.setMpa(getMpa(idFilm));
             film.setMpa(new Mpa(resultSet.getInt("mpa_id"), resultSet.getString("mpa_name")));
             return film;
         } else {
@@ -169,5 +181,45 @@ public class FilmDbStorage implements FilmStorage {
                 "ORDER BY count(L.USER_ID) DESC\n" +
                 "LIMIT ?";
         return jdbcTemplate.query(sql, FilmDbStorage::mapRowToFilm, genreId, year, limit);
+    }
+
+    @Override
+    public List<Film> searchByDirectors(String query) {
+        String sql =
+                "SELECT * " +
+                        "FROM film f " +
+                        "LEFT JOIN films_directors fd ON f.film_id = fd.film_id " +
+                        "LEFT JOIN directors d ON fd.director_id = d.director_id " +
+                        "LEFT JOIN likes l ON f.film_id = l.film_id " +
+                        "LEFT JOIN mpa m ON f.mpa_id = m.mpa_id " +
+                        "WHERE locate(UPPER(?), UPPER(d.DIRECTOR_NAME)) " +
+                        "order by f.rate DESC";
+        return jdbcTemplate.query(sql, FilmDbStorage::mapRowToFilm, query);
+    }
+
+    @Override
+    public List<Film> searchByTitles(String query) {
+        String sql =
+                "SELECT * from film " +
+                        "LEFT JOIN MPA M on FILM.MPA_ID = M.MPA_ID " +
+                        "WHERE LOCATE(UPPER(?), UPPER(description)) " +
+                        "ORDER BY rate DESC";
+        return jdbcTemplate.query(sql, FilmDbStorage::mapRowToFilm, query);
+    }
+
+    @Override
+    public void updateFilmRate(long filmId) {
+        String sqlQuery =
+                "UPDATE film f " +
+                        "SET f.rate = " +
+                        "(SELECT COUNT(l.user_id) FROM likes l WHERE l.film_id = ?) " +
+                        "WHERE f.film_id = ?";
+        jdbcTemplate.update(sqlQuery, filmId);
+    }
+     
+    @Override
+    public boolean deleteFilm(long id) {
+        String sql = "delete from film where film_id = ?";
+        return jdbcTemplate.update(sql, id) > 0;
     }
 }

@@ -74,6 +74,13 @@ public class FilmController {
         return filmService.getPopularFilms(count);
     }*/
 
+    @DeleteMapping("/films/{id}")
+    public void deleteFilmById(@PathVariable long id) {
+        log.info("Delete film {}", id);
+        filmService.deleteFilm(id);
+    }
+
+
     @GetMapping("/films/director/{directorId}")
     public List<Film> getSortFilmByDirector(@PathVariable long directorId,
                                             @RequestParam String sortBy) {
@@ -87,14 +94,16 @@ public class FilmController {
         filmService.deleteDirectorInFilm(filmId, directorId);
     }
 
-    /** Возвращает список общих с другом фильмов с сортировкой по их популярности.
+    /**
+     * Возвращает список общих с другом фильмов с сортировкой по их популярности.
      * API: GET /films/common?userId={userId}&friendId={friendId}
-     * @param userId идентификатор пользователя, запрашивающего информацию
+     *
+     * @param userId   идентификатор пользователя, запрашивающего информацию
      * @param friendId идентификатор пользователя, с которым необходимо сравнить список фильмов
      * @return Возвращает список фильмов, отсортированных по популярности.
      */
     @GetMapping("/films/common")
-    public List<Film> getPopularFilmsSharedWithFriend(@RequestParam long userId, @RequestParam long friendId){
+    public List<Film> getPopularFilmsSharedWithFriend(@RequestParam long userId, @RequestParam long friendId) {
         log.info("Get popular films shared with a friend.");
         return filmService.getPopularFilmsSharedWithFriend(userId, friendId);
     }
@@ -112,5 +121,12 @@ public class FilmController {
                                                     @RequestParam Optional<Long> year){
         log.info("Get list of the most popular films by genre and(or) year.");
         return filmService.getPopularFilmsByGenreAndYear(count, genreId, year);
+    }
+
+    @GetMapping("/films/search")
+    public List<Film> search(@RequestParam String query,
+                             @RequestParam List<String> by) {
+        log.info("Searching substring '{}' at films {}", query, by);
+        return filmService.searchFilm(query, by);
     }
 }

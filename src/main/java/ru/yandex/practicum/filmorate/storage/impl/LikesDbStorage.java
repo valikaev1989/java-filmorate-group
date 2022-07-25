@@ -3,6 +3,8 @@ package ru.yandex.practicum.filmorate.storage.impl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
+import ru.yandex.practicum.filmorate.model.EventOperations;
+import ru.yandex.practicum.filmorate.model.EventType;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.LikesStorage;
 
@@ -46,6 +48,7 @@ public class LikesDbStorage implements LikesStorage {
         return new HashSet<>(likes);
     }
 
+    //TODO удалить комментарии + изменить запрос на поле rate
     //именно из за этой закомментированной строки ниже и получилось что у тебя тесты не падали на выводе пополярных фильмов
     @Override
     public List<Film> getPopularFilms(int count) {
@@ -68,5 +71,18 @@ public class LikesDbStorage implements LikesStorage {
         String sql = "update FILM f set rate = (select count(l.user_id) " +
                 "from LIKES l where l.film_id = f.film_id) where film_id = ?";
         jdbcTemplate.update(sql, filmId);
+    }    @Override
+    public List<Long> getRecommendations(long userId) {
+        String sqlQuery =
+                "SELECT film_id FROM likes WHERE user_id = " +
+                        "(SELECT user_id FROM likes WHERE film_id IN " +
+                        "(SELECT film_id FROM likes WHERE user_id = ?) AND user_id <> ? " +
+                        "GROUP BY user_id ORDER BY COUNT(film_id) DESC LIMIT 1)" +
+                        " AND film_id NOT IN (SELECT film_id FROM likes WHERE user_id = ?)";
+        return jdbcTemplate.query(sqlQuery, this::makeFilmId, userId, userId, userId);
+    }
+
+    private long makeFilmId(ResultSet rs, int rowNum) throws SQLException {
+        return rs.getLong("film_id");
     }
 }

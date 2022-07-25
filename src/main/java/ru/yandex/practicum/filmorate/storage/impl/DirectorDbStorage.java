@@ -40,14 +40,14 @@ public class DirectorDbStorage implements DirectorStorage {
 
     @Override
     public List<Director> getAllDirectors() {
-        log.info("Start DirectorStorage. Метод getAllDirectors.");
+        log.info("Старт DirectorStorage. Метод getAllDirectors.");
         return jdbcTemplate.query(GET_ALL_DIRECTORS, (this::mapRowToDirector));
     }
 
     @Override
     public Director addDirector(Director director) {
         directorValidate.validateNameAndExist(director);
-        log.info("Start DirectorStorage. Метод addDirector. director:{}", director);
+        log.info("Старт DirectorStorage. Метод addDirector. director:{}", director);
         Map<String, Object> keys = new SimpleJdbcInsert(jdbcTemplate)
                 .withTableName("directors")
                 .usingColumns("director_name")
@@ -60,7 +60,7 @@ public class DirectorDbStorage implements DirectorStorage {
 
     @Override
     public Director updateDirector(Director director) {
-        log.info("Start DirectorStorage. Метод updateDirector. director:{}", director);
+        log.info("Старт DirectorStorage. Метод updateDirector. director:{}", director);
         directorValidate.validateNameAndId(director);
         jdbcTemplate.update(UPDATE_DIRECTORS, director.getName(), director.getId());
         return getDirector(director.getId());
@@ -68,7 +68,7 @@ public class DirectorDbStorage implements DirectorStorage {
 
     @Override
     public Director getDirector(Long directorId) {
-        log.info("Start DirectorStorage. Метод getDirector. directorId:{}", directorId);
+        log.info("Старт DirectorStorage. Метод getDirector. directorId:{}", directorId);
         directorValidate.validateIdDirector(directorId);
         SqlRowSet dirRows = jdbcTemplate.queryForRowSet(GET_DIRECTOR_BY_ID, directorId);
         if (dirRows.next()) {
@@ -83,7 +83,7 @@ public class DirectorDbStorage implements DirectorStorage {
     @Override
     public void deleteDirector(Long directorId) {
         directorValidate.validateIdDirector(directorId);
-        log.info("удаление режиссера с directorId: {} ", directorId);
+        log.info("Старт DirectorStorage. deleteDirector с directorId: {} ", directorId);
         jdbcTemplate.update(DELETE_DIRECTOR_BY_ID, directorId);
     }
 
@@ -95,7 +95,7 @@ public class DirectorDbStorage implements DirectorStorage {
 
     @Override
     public void addDirectorToFilm(Film film, long directorId) {
-        log.info("Start DirectorDbStorage addDirectorToFilm с directorId: {} в фильм {}", directorId, film);
+        log.info("Старт DirectorDbStorage addDirectorToFilm с directorId: {} в фильм {}", directorId, film);
         directorValidate.validateIdDirector(directorId);
         for (Director director : film.getDirectors()) {
             jdbcTemplate.update(INSERT_DIR_TO_FILM, film.getId(), director.getId());
@@ -105,7 +105,7 @@ public class DirectorDbStorage implements DirectorStorage {
 
     @Override
     public void deleteDirectorFromFilm(Long filmId, Long directorId) {
-        log.info("Start DirectorDbStorage deleteDirectorFromFilm у filmId {} и directorId {}", filmId, directorId);
+        log.info("Старт DirectorDbStorage deleteDirectorFromFilm у filmId {} и directorId {}", filmId, directorId);
         directorValidate.validateIdDirector(directorId);
         directorValidate.validateFilmId(filmId);
         jdbcTemplate.update(DELETE_DIRECTOR_FROM_FILM, filmId, directorId);
@@ -113,18 +113,18 @@ public class DirectorDbStorage implements DirectorStorage {
 
     @Override
     public List<Director> getFilmDirectors(long filmId) {
-        log.info("Start DirectorDbStorage getFilmDirectors у filmId {}", filmId);
+        log.info("Старт DirectorDbStorage getFilmDirectors у filmId {}", filmId);
         directorValidate.validateFilmId(filmId);
         return jdbcTemplate.query(GET_DIRECTORS_FROM_FILM, this::mapRowToDirector, filmId);
     }
 
     @Override
     public void updateDirectorToFilm(Film film) {
-        log.info("Start DirectorDbStorage updateDirectorToFilm  фильм: {}", film);
-        if(film.getDirectors().isEmpty()){
+        log.info("Старт DirectorDbStorage updateDirectorToFilm  фильм: {}", film);
+        if (film.getDirectors().isEmpty()) {
             film.setDirectors(null);
             jdbcTemplate.update("DELETE FROM FILMS_DIRECTORS WHERE FILM_ID = ?", film.getId());
-        }else{
+        } else {
             for (Director f : film.getDirectors()) {
                 directorValidate.validateIdDirector(f.getId());
                 jdbcTemplate.update(UPDATE_DIR_TO_FILM, film.getId(), f.getId());
