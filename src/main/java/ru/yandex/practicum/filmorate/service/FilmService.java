@@ -4,12 +4,14 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exceptions.ModelNotFoundException;
+import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.storage.*;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -38,7 +40,10 @@ public class FilmService {
 
     //если б rate для этого создали, то на входи не поступали бы фильмы с rate = 4
     //и их не пришлось бы обнулять
+    //TODO перед финальным ревью поправить сторадж, чтобы не писать в него rate
     public Film addFilm(Film film) {
+        //TODO удалить костыль
+        film.setRate(0);
         long idFilm = filmStorage.addFilm(film);
         genreStorage.addGenresToFilm(film, idFilm);
         film.setId(idFilm);
@@ -72,12 +77,14 @@ public class FilmService {
 
     public void like(long id, long userId) {
         likesStorage.like(id, userId);
+        likesStorage.updateRate(id);
     }
 
     public void deleteLike(long id, long userId) {
         Film film = getFilmById(id);
         if (film.getLikes().contains(userId)) {
             likesStorage.deleteLike(id, userId);
+            likesStorage.updateRate(id);
         } else {
             throw new ModelNotFoundException("User not found with id " + userId);
         }
@@ -146,5 +153,28 @@ public class FilmService {
     
     public List<Film> getPopularFilmsSharedWithFriend(long userId, long friendId) {
         return filmStorage.getPopularFilmsSharedWithFriend(userId, friendId);
+    }
+
+    public List<Film> searchFilm(String query, List<String> by) {
+        List<Film> films = new ArrayList<>();
+        for (String sortBy : by) {
+            switch (sortBy) {
+                case "title":
+                    films.addAll(filmStorage.searchByTitles(query));
+                    break;
+                case "director":
+                    films.addAll(filmStorage.searchByDirectors(query));
+                    break;
+                default:
+                    throw new ValidationException("Bad search argument");
+            }
+        }
+        for (Film film : films) {
+            film.setGenres(getGenresByFilmId(film.getId()));
+            film.setLikes(likesStorage.getLikes(film.getId()));
+            film.setDirectors(directorsStorage.getDirectorsFromFilm(film.getId()));
+        }
+        films.sort(((o1, o2) -> Integer.compare(o2.getRate(), o1.getRate())));
+        return films;
     }
 }

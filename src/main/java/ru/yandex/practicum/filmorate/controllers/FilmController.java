@@ -103,4 +103,11 @@ public class FilmController {
         log.info("Get popular films shared with a friend.");
         return filmService.getPopularFilmsSharedWithFriend(userId, friendId);
     }
+
+    @GetMapping("/films/search")
+    public List<Film> search(@RequestParam String query,
+                             @RequestParam List<String> by) {
+        log.info("Searching substring '{}' at films {}", query, by);
+        return filmService.searchFilm(query, by);
+    }
 }
