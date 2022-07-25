@@ -22,6 +22,8 @@ public interface FilmStorage {
 
     List<Film> getPopularFilmsSharedWithFriend(long userId, long friendId);
 
+    List<Film> getFilms(List<Long> ids);
+    
     List<Film> searchByDirectors(String query);
 
     List<Film> searchByTitles(String query);

@@ -15,6 +15,7 @@ import ru.yandex.practicum.filmorate.storage.FilmStorage;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDate;
+import java.util.Collections;
 import java.util.List;
 
 @Slf4j
@@ -84,7 +85,6 @@ public class FilmDbStorage implements FilmStorage {
         }
     }
 
-
     @Override
     public List<Film> getSortFilmByDirectorSortByYear(Long directorId) {
         return jdbcTemplate.query(GET_SORTED_FILMS_BY_YEAR, FilmDbStorage::mapRowToFilm, directorId);
@@ -93,6 +93,18 @@ public class FilmDbStorage implements FilmStorage {
     @Override
     public List<Film> getSortFilmByDirectorSortByLikes(Long directorId) {
         return jdbcTemplate.query(GET_SORT_BY_LIKES_FILMS, FilmDbStorage::mapRowToFilm, directorId);
+    }
+
+    @Override
+    public List<Film> getFilms(List<Long> ids) {
+        String sqlQueryTemplate =
+                "SELECT * " +
+                        "FROM film AS f " +
+                        "LEFT JOIN mpa AS m ON f.mpa_id = m.mpa_id " +
+                        "WHERE film_id IN (%s)";
+        String placeholders = String.join(",", Collections.nCopies(ids.size(), "?"));
+        String sqlQuery = String.format(sqlQueryTemplate, placeholders);
+        return jdbcTemplate.query(sqlQuery, ids.toArray(), FilmDbStorage::mapRowToFilm);
     }
 
     public static Film mapRowToFilm(ResultSet resultSet, int rowNum) throws SQLException {
@@ -105,7 +117,6 @@ public class FilmDbStorage implements FilmStorage {
             int rate = resultSet.getInt("rate");
             Film film = new Film(name, description, releaseDate, duration, rate);
             film.setId(idFilm);
-            //film.setMpa(getMpa(idFilm));
             film.setMpa(new Mpa(resultSet.getInt("mpa_id"), resultSet.getString("mpa_name")));
             return film;
         } else {

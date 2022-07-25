@@ -18,6 +18,7 @@ import java.util.Set;
 @Service
 public class FilmService {
     private final FilmStorage filmStorage;
+    private final UserStorage userStorage;
     private final GenreStorage genreStorage;
     private final LikesStorage likesStorage;
     private final DirectorService directorsStorage;
@@ -25,6 +26,7 @@ public class FilmService {
 
     @Autowired
     public FilmService(FilmStorage filmStorage,
+                       UserStorage userStorage,
                        EventsStorage eventsStorage,
                        GenreStorage genreStorage,
                        LikesStorage likesStorage,
@@ -34,7 +36,7 @@ public class FilmService {
         this.likesStorage = likesStorage;
         this.directorsStorage = directorsStorage;
         this.eventsStorage = eventsStorage;
-
+        this.userStorage = userStorage;
     }
 
     //если б rate для этого создали, то на входи не поступали бы фильмы с rate = 4
@@ -57,6 +59,17 @@ public class FilmService {
         film.setGenres(getGenresByFilmId(id));
         film.setDirectors(directorsStorage.getDirectorsFromFilm(id));
         return film;
+    }
+
+    public List<Film> getFilmsByIds(List<Long> ids) {
+        List<Film> films = filmStorage.getFilms(ids);
+        //todo эту байду перед финальным ревью вынести в отдельный метод
+        films.forEach(film -> {
+            film.setLikes(likesStorage.getLikes(film.getId()));
+            film.setGenres(getGenresByFilmId(film.getId()));
+            film.setDirectors(directorsStorage.getDirectorsFromFilm(film.getId()));
+        });
+        return films;
     }
 
     private Set<Genre> getGenresByFilmId(long filmId) {
@@ -96,6 +109,7 @@ public class FilmService {
 
     public List<Film> getFilms() {
         List<Film> films = filmStorage.getFilms();
+        //todo эту байду перед финальным ревью вынести в отдельный метод
         for (Film film : films) {
             film.setGenres(getGenresByFilmId(film.getId()));
             film.setLikes(likesStorage.getLikes(film.getId()));
@@ -104,6 +118,7 @@ public class FilmService {
         return films;
     }
 
+    //todo здесь тоже будет байда
     public List<Film> getPopularFilms(int count) {
         List<Film> films = likesStorage.getPopularFilms(count);
         films.forEach(film -> film.setGenres(getGenresByFilmId(film.getId())));
@@ -157,6 +172,20 @@ public class FilmService {
 
     public List<Film> getPopularFilmsSharedWithFriend(long userId, long friendId) {
         return filmStorage.getPopularFilmsSharedWithFriend(userId, friendId);
+    }
+
+    public List<Film> getRecommendations(long userId) {
+        userStorage.findUserById(userId);
+        List<Long> recommendationsIds = likesStorage.getRecommendations(userId);
+        List<Film> recommendations = filmStorage.getFilms(recommendationsIds);
+        //todo эту байду перед финальным ревью вынести в отдельный метод
+        recommendations.forEach(film -> {
+                    film.setGenres(getGenresByFilmId(film.getId()));
+                    film.setLikes(likesStorage.getLikes(film.getId()));
+                    film.setDirectors(directorsStorage.getDirectorsFromFilm(film.getId()));
+                }
+        );
+        return recommendations;
     }
 
     public List<Film> searchFilm(String query, List<String> by) {
