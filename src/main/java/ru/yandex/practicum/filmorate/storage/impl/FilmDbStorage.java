@@ -86,12 +86,12 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     @Override
-    public List<Film> getSortFilmByDirectorSortByYear(Long directorId) {
+    public List<Film> getFilmsByDirectorSortedByYear(Long directorId) {
         return jdbcTemplate.query(GET_SORTED_FILMS_BY_YEAR, FilmDbStorage::mapRowToFilm, directorId);
     }
 
     @Override
-    public List<Film> getSortFilmByDirectorSortByLikes(Long directorId) {
+    public List<Film> getFilmsByDirectorSortedByLikes(Long directorId) {
         return jdbcTemplate.query(GET_SORT_BY_LIKES_FILMS, FilmDbStorage::mapRowToFilm, directorId);
     }
 
