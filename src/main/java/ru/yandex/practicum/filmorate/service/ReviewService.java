@@ -3,9 +3,8 @@ package ru.yandex.practicum.filmorate.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exceptions.ModelNotFoundException;
-import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.model.Review;
-import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.model.*;
+import ru.yandex.practicum.filmorate.storage.EventsStorage;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.ReviewStorage;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
@@ -15,23 +14,30 @@ import java.util.Optional;
 
 @Service
 public class ReviewService {
-    ReviewStorage reviewStorage;
+    private final ReviewStorage reviewStorage;
 
-    UserStorage userStorage;
+    private final UserStorage userStorage;
 
-    FilmStorage filmStorage;
+    private final FilmStorage filmStorage;
+    private final EventsStorage eventsStorage;
 
     @Autowired
-    public ReviewService(ReviewStorage reviewStorage, UserStorage userStorage, FilmStorage filmStorage) {
+    public ReviewService(ReviewStorage reviewStorage, UserStorage userStorage,
+                         FilmStorage filmStorage, EventsStorage eventsStorage) {
         this.reviewStorage = reviewStorage;
         this.userStorage = userStorage;
         this.filmStorage = filmStorage;
+        this.eventsStorage = eventsStorage;
     }
 
     public Review addReview(Review review) {
         if (isExistFilm(review.getFilmId()) && isExistUser(review.getUserId())) {
             long id = reviewStorage.addReview(review);
             review.setReviewId(id);
+            Event event = new Event(review.getUserId(), id,
+                    EventType.REVIEW,
+                    EventOperations.ADD);
+            eventsStorage.addEvent(event);
             return review;
         } else {
             throw new ModelNotFoundException("Model not found");
@@ -40,10 +46,20 @@ public class ReviewService {
 
     public Review changeReview(Review review) {
         reviewStorage.changeReview(review);
+        Review review1 = reviewStorage.getReviewById(review.getReviewId());
+        Event event = new Event(review1.getUserId(), review.getReviewId(),
+                EventType.REVIEW,
+                EventOperations.UPDATE);
+        eventsStorage.addEvent(event);
         return review;
     }
 
     public void deleteReview(long id) {
+        Review review = getReviewById(id);
+        Event event = new Event(review.getUserId(), review.getReviewId(),
+                EventType.REVIEW,
+                EventOperations.REMOVE);
+        eventsStorage.addEvent(event);
         reviewStorage.deleteReview(id);
     }
 

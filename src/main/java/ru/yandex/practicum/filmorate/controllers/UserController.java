@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import ru.yandex.practicum.filmorate.model.Event;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.UserService;
 
@@ -49,7 +50,7 @@ public class UserController {
 
     @DeleteMapping("/{id}/friends/{friendId}")
     public void deleteUserFriend(@PathVariable long id, @PathVariable long friendId) {
-        log.info("User %d was deleted from %d", friendId, id);
+        log.info("User {} was deleted from {}", friendId, id);
         userService.deleteFromFriend(id, friendId);
     }
 
@@ -65,15 +66,21 @@ public class UserController {
         return userService.getCommonFriend(id, otherId);
     }
 
-    @GetMapping("{id}")
+    @GetMapping("/{id}")
     public User getUser(@PathVariable long id) {
         log.info(String.format("Get user %d", id));
         return userService.getUserById(id);
     }
 
-    @DeleteMapping("{id}")
-    public void deleteFilmById(@PathVariable long id){
-        log.info("Delete user %d", id);
+    @GetMapping("/{id}/feed")
+    public List<Event> getEvents(@PathVariable("id") Long id) {
+        log.info("Получен запрос к эндпоинту /users/{id}/feed. Метод GET");
+        return userService.getEvents(id);
+    }
+
+    @DeleteMapping("/{id}")
+    public void deleteFilmById(@PathVariable("id") long id) {
+        log.info("Delete user {}", id);
         userService.deleteUser(id);
     }
 }

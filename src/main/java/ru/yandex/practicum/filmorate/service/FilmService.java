@@ -4,10 +4,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exceptions.ModelNotFoundException;
+import ru.yandex.practicum.filmorate.model.*;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
-import ru.yandex.practicum.filmorate.model.Director;
-import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.storage.*;
 
 import java.time.LocalDate;
@@ -23,19 +21,20 @@ public class FilmService {
     private final GenreStorage genreStorage;
     private final LikesStorage likesStorage;
     private final DirectorService directorsStorage;
-    private final UserStorage userStorage;
+    private final EventsStorage eventsStorage;
 
     @Autowired
     public FilmService(FilmStorage filmStorage,
+                       EventsStorage eventsStorage,
                        GenreStorage genreStorage,
                        LikesStorage likesStorage,
-                       UserStorage userStorage,
                        DirectorService directorsStorage) {
         this.filmStorage = filmStorage;
         this.genreStorage = genreStorage;
         this.likesStorage = likesStorage;
-        this.userStorage = userStorage;
         this.directorsStorage = directorsStorage;
+        this.eventsStorage = eventsStorage;
+
     }
 
     //если б rate для этого создали, то на входи не поступали бы фильмы с rate = 4
@@ -75,16 +74,21 @@ public class FilmService {
         return film;
     }
 
-    public void like(long id, long userId) {
-        likesStorage.like(id, userId);
-        likesStorage.updateRate(id);
+
+    public void like(long filmId, long userId) {
+        likesStorage.like(filmId, userId);
+        likesStorage.updateRate(filmId);
+        Event event = new Event(userId, filmId, EventType.LIKE, EventOperations.ADD);
+        eventsStorage.addEvent(event);
     }
 
-    public void deleteLike(long id, long userId) {
-        Film film = getFilmById(id);
+    public void deleteLike(long filmId, long userId) {
+        Film film = getFilmById(filmId);
         if (film.getLikes().contains(userId)) {
-            likesStorage.deleteLike(id, userId);
-            likesStorage.updateRate(id);
+            likesStorage.deleteLike(filmId, userId);
+            likesStorage.updateRate(filmId);
+            Event event = new Event(userId, filmId, EventType.LIKE, EventOperations.REMOVE);
+            eventsStorage.addEvent(event);
         } else {
             throw new ModelNotFoundException("User not found with id " + userId);
         }
@@ -112,17 +116,17 @@ public class FilmService {
     }
 
     public void deleteFilm(long id) {
-        Film film = getFilmById(id);
+        getFilmById(id);
         filmStorage.deleteFilm(id);
     }
 
     public void deleteDirectorInFilm(long filmId, long directorId) {
-        log.info("Start filmService. Метод deleteDirectorInFilm. directorId:{},  filmId{}.", directorId, filmId);
+        log.info("Старт filmService. Метод deleteDirectorInFilm. directorId:{},  filmId{}.", directorId, filmId);
         directorsStorage.deleteDirectorFromFilm(filmId, directorId);
     }
 
     public void addDirectorInFilm(Film film) {
-        log.info("Start filmService. Метод addDirectorInFilm. film:{}.", film);
+        log.info("Старт filmService. Метод addDirectorInFilm. film:{}.", film);
         List<Director> directors = film.getDirectors();
         for (Director director : directors) {
             directorsStorage.addDirectorToFilm(film, director.getId());
@@ -130,7 +134,7 @@ public class FilmService {
     }
 
     public List<Film> getSortFilmByDirector(Long directorId, String sortBy) {
-        log.info("Start filmService. Метод getSortFilmByDirector. directorId:{}, parameter:{}.", directorId, sortBy);
+        log.info("Старт filmService. Метод getSortFilmByDirector. directorId:{}, parameter:{}.", directorId, sortBy);
         directorsStorage.getDirector(directorId);
         List<Film> films;
         switch (sortBy) {
@@ -150,7 +154,7 @@ public class FilmService {
         }
         return films;
     }
-    
+
     public List<Film> getPopularFilmsSharedWithFriend(long userId, long friendId) {
         return filmStorage.getPopularFilmsSharedWithFriend(userId, friendId);
     }
