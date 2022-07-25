@@ -28,7 +28,7 @@ public class UserDbStorage implements UserStorage {
 
     @Override
     public List<User> getAllUsers() {
-        String sql = "select * from USERR";
+        String sql = "select * from users";
         return jdbcTemplate.query(sql, this::mapRowToUser);
     }
 
@@ -39,7 +39,7 @@ public class UserDbStorage implements UserStorage {
             throw new ModelAlreadyExistException("User already exist");
         } else {
             SimpleJdbcInsert insert = new SimpleJdbcInsert(jdbcTemplate)
-                    .withTableName("userr")
+                    .withTableName("users")
                     .usingGeneratedKeyColumns("user_id");
             long id = insert.executeAndReturnKey(user.toMap()).longValue();
             return findUserById(id);
@@ -50,7 +50,7 @@ public class UserDbStorage implements UserStorage {
     public User changeUSer(User user) {
         Collection<User> users = getAllUsers();
         if (users.stream().anyMatch(x -> x.getId() == user.getId())) {
-            String sql = "update userr set email = ?, login = ?, user_name = ?, birth_date = ?" +
+            String sql = "update users set email = ?, login = ?, user_name = ?, birth_date = ?" +
                     " where user_id = ?";
             jdbcTemplate.update(sql,
                     user.getEmail(),
@@ -70,7 +70,7 @@ public class UserDbStorage implements UserStorage {
         if (users.stream().noneMatch(x -> x.getId() == id)) {
             throw new ModelNotFoundException("User not found");
         } else {
-            String sql = "SELECT * FROM userr WHERE user_id = ?";
+            String sql = "SELECT * FROM users WHERE user_id = ?";
             return jdbcTemplate.queryForObject(sql, this::mapRowToUser, id);
         }
     }
@@ -95,12 +95,12 @@ public class UserDbStorage implements UserStorage {
 
     @Override
     public boolean deleteUser(long id) {
-        String sql = "delete from userr where user_id = ?";
+        String sql = "delete from users where user_id = ?";
         return jdbcTemplate.update(sql, id) > 0;
     }
 
     public boolean deleteAllUsers() {
-        String sql = "delete from userr";
+        String sql = "delete from users";
         return jdbcTemplate.update(sql) > 0;
     }
 

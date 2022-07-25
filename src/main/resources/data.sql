@@ -1,5 +1,5 @@
 
-/*INSERT INTO USERR (EMAIL, LOGIN, USER_NAME, BIRTH_DATE)
+/*INSERT INTO users (EMAIL, LOGIN, USER_NAME, BIRTH_DATE)
 VALUES ('user@gmail.com', 'user', 'firstuser', '1999-12-05');*/
 
 -- INSERT INTO DIRECTORS (DIRECTOR_ID, DIRECTOR_NAME)
@@ -16,11 +16,11 @@ VALUES ('user@gmail.com', 'user', 'firstuser', '1999-12-05');*/
 -- VALUES ('2', '1');
 -- MERGE INTO FILMS_DIRECTORS (FILM_ID, DIRECTOR_ID)
 --     VALUES ('1', '2');
--- INSERT INTO USERR (USER_ID, EMAIL, LOGIN, USER_NAME, BIRTH_DATE)
+-- INSERT INTO users (USER_ID, EMAIL, LOGIN, USER_NAME, BIRTH_DATE)
 -- VALUES ('1', 'user@gmail.com', 'user', 'firstuser', '1999-12-05');
--- INSERT INTO USERR (USER_ID, EMAIL, LOGIN, USER_NAME, BIRTH_DATE)
+-- INSERT INTO users (USER_ID, EMAIL, LOGIN, USER_NAME, BIRTH_DATE)
 -- VALUES ('2', 'user2@gmail.com', 'user2', 'seconduser', '1990-12-05');
--- INSERT INTO USERR (USER_ID, EMAIL, LOGIN, USER_NAME, BIRTH_DATE)
+-- INSERT INTO users (USER_ID, EMAIL, LOGIN, USER_NAME, BIRTH_DATE)
 -- VALUES ('3', 'user3@gmail.com', 'user3', 'thirduser', '1990-12-05');
 -- INSERT INTO LIKES (FILM_ID, USER_ID)
 -- VALUES ('1', '1');
@@ -72,7 +72,7 @@ VALUES ('user@gmail.com', 'user', 'firstuser', '1999-12-05');*/
 
 
 
-/*INSERT INTO userr (EMAIL, LOGIN, USER_NAME, BIRTH_DATE)
+/*INSERT INTO users (EMAIL, LOGIN, USER_NAME, BIRTH_DATE)
 VALUES ( 'user@gmail.com', 'friend', 'seconduser', '1958-12-05' );
 
 
