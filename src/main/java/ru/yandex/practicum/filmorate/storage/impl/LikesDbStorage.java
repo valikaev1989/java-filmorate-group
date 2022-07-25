@@ -48,6 +48,7 @@ public class LikesDbStorage implements LikesStorage {
         return new HashSet<>(likes);
     }
 
+    //TODO удалить комментарии + изменить запрос на поле rate
     //именно из за этой закомментированной строки ниже и получилось что у тебя тесты не падали на выводе пополярных фильмов
     @Override
     public List<Film> getPopularFilms(int count) {
