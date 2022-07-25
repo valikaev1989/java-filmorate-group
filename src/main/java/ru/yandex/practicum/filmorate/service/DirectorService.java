@@ -50,7 +50,8 @@ public class DirectorService {
     public void updateDirectorToFilm(Film film) {
         directorDbStorage.updateDirectorToFilm(film);
     }
-    public List<Director> getDirectorsFromFilm(Long filmId){
+
+    public List<Director> getDirectorsFromFilm(Long filmId) {
         return directorDbStorage.getFilmDirectors(filmId);
     }
 }

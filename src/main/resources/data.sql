@@ -1,3 +1,7 @@
+
+/*INSERT INTO USERR (EMAIL, LOGIN, USER_NAME, BIRTH_DATE)
+VALUES ('user@gmail.com', 'user', 'firstuser', '1999-12-05');*/
+
 -- INSERT INTO DIRECTORS (DIRECTOR_ID, DIRECTOR_NAME)
 -- VALUES ('1', 'DIRECTOR1');
 -- INSERT INTO DIRECTORS (DIRECTOR_ID, DIRECTOR_NAME)
@@ -65,6 +69,7 @@
 -- l ON film.film_id = l.film_id
 -- WHERE l.user_id = 1
 -- ORDER BY l.likes_count DESC;
+
 
 
 /*INSERT INTO userr (EMAIL, LOGIN, USER_NAME, BIRTH_DATE)

@@ -143,6 +143,40 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     @Override
+    public List<Film> searchByDirectors(String query) {
+        String sql =
+                "SELECT * " +
+                        "FROM film f " +
+                        "LEFT JOIN films_directors fd ON f.film_id = fd.film_id " +
+                        "LEFT JOIN directors d ON fd.director_id = d.director_id " +
+                        "LEFT JOIN likes l ON f.film_id = l.film_id " +
+                        "LEFT JOIN mpa m ON f.mpa_id = m.mpa_id " +
+                        "WHERE locate(UPPER(?), UPPER(d.DIRECTOR_NAME)) " +
+                        "order by f.rate DESC";
+        return jdbcTemplate.query(sql, FilmDbStorage::mapRowToFilm, query);
+    }
+
+    @Override
+    public List<Film> searchByTitles(String query) {
+        String sql =
+                "SELECT * from film " +
+                        "LEFT JOIN MPA M on FILM.MPA_ID = M.MPA_ID " +
+                        "WHERE LOCATE(UPPER(?), UPPER(description)) " +
+                        "ORDER BY rate DESC";
+        return jdbcTemplate.query(sql, FilmDbStorage::mapRowToFilm, query);
+    }
+
+    @Override
+    public void updateFilmRate(long filmId) {
+        String sqlQuery =
+                "UPDATE film f " +
+                        "SET f.rate = " +
+                        "(SELECT COUNT(l.user_id) FROM likes l WHERE l.film_id = ?) " +
+                        "WHERE f.film_id = ?";
+        jdbcTemplate.update(sqlQuery, filmId);
+    }
+     
+    @Override
     public boolean deleteFilm(long id) {
         String sql = "delete from film where film_id = ?";
         return jdbcTemplate.update(sql, id) > 0;

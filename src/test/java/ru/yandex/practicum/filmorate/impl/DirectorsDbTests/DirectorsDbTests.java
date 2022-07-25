@@ -31,35 +31,35 @@ public class DirectorsDbTests {
 
     @Test
     public void checkAddDirectors() {
-        assertEquals(0,directorService.getAllDirectors().size());
-        Director director = new Director(1,"dir1");
-        Director director2 = new Director(2,"dir1");
-        Director director3 = new Director(3,"dir1");
+        assertEquals(0, directorService.getAllDirectors().size());
+        Director director = new Director(1, "dir1");
+        Director director2 = new Director(2, "dir1");
+        Director director3 = new Director(3, "dir1");
         Director director4 = new Director("dir1");
-        Director director5 = new Director(10,"dir1");
+        Director director5 = new Director(10, "dir1");
         directorService.addDirector(director);
         directorService.addDirector(director2);
         directorService.addDirector(director3);
         directorService.addDirector(director4);
         directorService.addDirector(director5);
-        assertEquals(5,directorService.getAllDirectors().size());
-        Director director6 = new Director(10,null);
+        assertEquals(5, directorService.getAllDirectors().size());
+        Director director6 = new Director(10, null);
         ValidationException ex = assertThrows(ValidationException.class, () -> directorService.addDirector(director6));
         assertEquals("имя директора null", ex.getMessage());
-        Director director7 = new Director(1,"");
+        Director director7 = new Director(1, "");
         ValidationException ex2 = assertThrows(ValidationException.class, () -> directorService.addDirector(director7));
         assertEquals("имя директора пустое", ex2.getMessage());
-        Director director8 = new Director(1,"qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq"+
+        Director director8 = new Director(1, "qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq" +
                 "qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq");
         ValidationException ex3 = assertThrows(ValidationException.class, () -> directorService.addDirector(director8));
         assertEquals("имя директора длиннее 50 символов", ex3.getMessage());
     }
 
     @Test
-    public void checkAddDAndDeleteDirectorsInFilm(){
-        Director director = new Director(1,"dir1");
-        Director director2 = new Director(2,"dir1");
-        Director director3 = new Director(3,"dir1");
+    public void checkAddDAndDeleteDirectorsInFilm() {
+        Director director = new Director(1, "dir1");
+        Director director2 = new Director(2, "dir1");
+        Director director3 = new Director(3, "dir1");
         directorService.addDirector(director);
         directorService.addDirector(director2);
         directorService.addDirector(director3);
@@ -68,23 +68,24 @@ public class DirectorsDbTests {
         film.setMpa(new Mpa(1, "G"));
         film.setId(1);
         filmService.addFilm(film);
-        assertEquals(0,film.getDirectors().size());
+        assertEquals(0, film.getDirectors().size());
         film.addDirector(director);
         film.addDirector(director2);
         film.addDirector(director3);
         filmService.changeFilm(film);
         directorService.getDirectorsFromFilm(film.getId());
-        assertEquals(3,directorService.getDirectorsFromFilm(film.getId()).size());
-        directorService.deleteDirectorFromFilm(film.getId(),director.getId());
-        directorService.deleteDirectorFromFilm(film.getId(),director2.getId());
-        assertEquals(1,directorService.getDirectorsFromFilm(film.getId()).size());
+        assertEquals(3, directorService.getDirectorsFromFilm(film.getId()).size());
+        directorService.deleteDirectorFromFilm(film.getId(), director.getId());
+        directorService.deleteDirectorFromFilm(film.getId(), director2.getId());
+        assertEquals(1, directorService.getDirectorsFromFilm(film.getId()).size());
         directorService.getDirector(director.getId());
     }
+
     @Test
     public void checkSortFilmOfDirector() {
-        Director director = new Director(1,"dir1");
-        Director director2 = new Director(2,"dir1");
-        Director director3 = new Director(3,"dir1");
+        Director director = new Director(1, "dir1");
+        Director director2 = new Director(2, "dir1");
+        Director director3 = new Director(3, "dir1");
         directorService.addDirector(director);
         directorService.addDirector(director2);
         directorService.addDirector(director3);
@@ -115,17 +116,6 @@ public class DirectorsDbTests {
 
         film.addDirector(director);
         film2.addDirector(director);
-        filmService.like(film.getId(),user.getId());
-//        filmService.like(film.getId(),user2.getId());
-//        filmService.like(film.getId(),user3.getId());
-        System.out.println(filmService.getPopularFilms(10));
-//        film.addDirector(director2);
-//        film.addDirector(director3);
-//        filmService.changeFilm(film);
-//        directorService.deleteDirectorFromFilm(film.getId(),director.getId());
-//        directorService.getDirectorsFromFilm(film.getId());
-//        director.setName("qwe");
-//        directorService.updateDirector(director);
+        filmService.like(film.getId(), user.getId());
     }
-
 }

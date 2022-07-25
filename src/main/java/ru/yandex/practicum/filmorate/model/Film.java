@@ -37,7 +37,8 @@ public class Film {
 
     private int rate;
 
-    public Film() {}
+    public Film() {
+    }
 
     public Film(long id, String name, String description, LocalDate releaseDate, int duration, int rate, Mpa mpa) {
         this.id = id;
@@ -76,7 +77,8 @@ public class Film {
 
         return values;
     }
-    public void addDirector(Director director){
+
+    public void addDirector(Director director) {
         this.Directors.add(director);
     }
 }
