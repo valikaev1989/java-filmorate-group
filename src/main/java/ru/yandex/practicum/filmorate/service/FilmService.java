@@ -147,11 +147,11 @@ public class FilmService {
         }
 
         if (genreId.isPresent() && !year.isPresent()) {
-            return filmStorage.getPopularFilmsByGenre(limit, genreId);
+            return filmStorage.getPopularFilmsByGenre(limit, genreId.get());
         }
 
         if (!genreId.isPresent() && year.isPresent()) {
-            return filmStorage.getPopularFilmsByYear(limit, year);
-        } else return filmStorage.getPopularFilmsByGenreAndYear(limit, genreId, year);
+            return filmStorage.getPopularFilmsByYear(limit, year.get());
+        } else return filmStorage.getPopularFilmsByGenreAndYear(limit, genreId.get(), year.get());
     }
 }

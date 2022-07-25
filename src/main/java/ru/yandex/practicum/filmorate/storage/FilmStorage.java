@@ -20,9 +20,9 @@ public interface FilmStorage {
     
     List<Film> getPopularFilmsSharedWithFriend(long userId, long friendId);
 
-    List<Film>  getPopularFilmsByGenre(long limit, Optional<Long> genreId);
+    List<Film>  getPopularFilmsByGenre(int limit, long genreId);
 
-    List<Film>  getPopularFilmsByYear(long limit, Optional<Long> year);
+    List<Film>  getPopularFilmsByYear(int limit, long year);
 
-    List<Film> getPopularFilmsByGenreAndYear(long limit, Optional<Long> genreId, Optional<Long> year);
+    List<Film> getPopularFilmsByGenreAndYear(int limit, long genreId, long year);
 }

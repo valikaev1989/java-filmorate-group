@@ -101,16 +101,16 @@ public class FilmController {
 
     /** Вывод самых популярных фильмов по жанру и годам
      * API: GET /films/popular?count={limit}&genreId={genreId}&year={year}
-     * @param limit - лимит вывода фильмов
-     * @param genreId - идентификатор жанра
-     * @param year - год выпуска фильма
+     * @param count лимит вывода фильмов
+     * @param genreId идентификатор жанра
+     * @param year год выпуска фильма
      * @return Возвращает список самых популярных фильмов указанного жанра за нужный год.
      */
     @GetMapping("/films/popular")
-    public List<Film> getPopularFilmsByGenreAndYear(@RequestParam(defaultValue = "10") int limit,
+    public List<Film> getPopularFilmsByGenreAndYear(@RequestParam(defaultValue = "10") int count,
                                                     @RequestParam Optional<Long> genreId,
                                                     @RequestParam Optional<Long> year){
         log.info("Get list of the most popular films by genre and(or) year.");
-        return filmService.getPopularFilmsByGenreAndYear(limit, genreId, year);
+        return filmService.getPopularFilmsByGenreAndYear(count, genreId, year);
     }
 }

@@ -131,7 +131,7 @@ public class FilmDbStorage implements FilmStorage {
         return jdbcTemplate.query(sql, FilmDbStorage::mapRowToFilm, userId, friendId);
     }
 
-    public List<Film>  getPopularFilmsByGenre(long limit, Optional<Long> genreId) {
+    public List<Film>  getPopularFilmsByGenre(int limit, long genreId) {
         String sql = "SELECT *\n" +
                 "FROM film f, MPA m\n" +
                 "WHERE f.MPA_ID = m.MPA_ID AND film_id IN (SELECT FILM_ID\n" +
@@ -146,7 +146,7 @@ public class FilmDbStorage implements FilmStorage {
         return jdbcTemplate.query(sql, FilmDbStorage::mapRowToFilm, genreId, limit);
     }
 
-    public List<Film>  getPopularFilmsByYear(long limit, Optional<Long> year) {
+    public List<Film>  getPopularFilmsByYear(int limit, long year) {
         String sql = "SELECT *\n" +
                 "FROM film f, MPA m\n" +
                 "WHERE f.MPA_ID = m.MPA_ID AND film_id IN (select FILM_ID\n" +
@@ -158,7 +158,7 @@ public class FilmDbStorage implements FilmStorage {
         return jdbcTemplate.query(sql, FilmDbStorage::mapRowToFilm, year, limit);
     }
 
-    public List<Film> getPopularFilmsByGenreAndYear(long limit, Optional<Long> genreId, Optional<Long> year){
+    public List<Film> getPopularFilmsByGenreAndYear(int limit, long genreId, long year){
         String sql = "SELECT *\n" +
                 "FROM film f, MPA m\n" +
                 "WHERE f.MPA_ID = m.MPA_ID AND film_id IN (SELECT FILM_ID\n" +
