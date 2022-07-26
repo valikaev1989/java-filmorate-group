@@ -76,8 +76,9 @@ public class FilmDbStorage implements FilmStorage {
         String sqlQuery =
                 "SELECT * FROM FILMS_DIRECTORS FD " +
                         "LEFT JOIN FILM F on  fd.FILM_ID=F.FILM_ID " +
-                        "LEFT JOIN MPA M on F.MPA_ID = M.MPA_ID" +
-                        " WHERE fd.director_id = ? ORDER BY RELEASE_DATE ASC";
+                        "LEFT JOIN MPA M on F.MPA_ID = M.MPA_ID " +
+                        "WHERE fd.director_id = ? " +
+                        "ORDER BY RELEASE_DATE ASC";
         return jdbcTemplate.query(sqlQuery, FilmDbStorage::mapRowToFilm, directorId);
     }
 
@@ -87,7 +88,8 @@ public class FilmDbStorage implements FilmStorage {
                 "SELECT *  FROM FILMS_DIRECTORS FD " +
                 "LEFT JOIN FILM F on  fd.FILM_ID=F.FILM_ID LEFT JOIN LIKES L on F.FILM_ID = L.FILM_ID " +
                 "LEFT JOIN MPA M on F.MPA_ID = M.MPA_ID WHERE fd.director_id = ? " +
-                "GROUP BY F.FILM_ID ORDER BY COUNT(L.USER_ID) DESC";
+                "GROUP BY F.FILM_ID " +
+                "ORDER BY COUNT(L.USER_ID) DESC";
         return jdbcTemplate.query(sqlQuery, FilmDbStorage::mapRowToFilm, directorId);
     }
 
@@ -189,7 +191,7 @@ public class FilmDbStorage implements FilmStorage {
                         "LEFT JOIN likes l ON f.film_id = l.film_id " +
                         "LEFT JOIN mpa m ON f.mpa_id = m.mpa_id " +
                         "WHERE locate(UPPER(?), UPPER(d.DIRECTOR_NAME)) " +
-                        "order by f.rate DESC";
+                        "ORDER BY f.rate DESC";
         return jdbcTemplate.query(sql, FilmDbStorage::mapRowToFilm, query);
     }
 
@@ -215,7 +217,7 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public boolean deleteFilm(long id) {
-        String sql = "delete from film where film_id = ?";
+        String sql = "DELETE FROM film WHERE film_id = ?";
         return jdbcTemplate.update(sql, id) > 0;
     }
 }
