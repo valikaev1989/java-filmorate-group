@@ -2,7 +2,6 @@ package ru.yandex.practicum.filmorate.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import ru.yandex.practicum.filmorate.exceptions.ModelNotFoundException;
 import ru.yandex.practicum.filmorate.model.Event;
 import ru.yandex.practicum.filmorate.model.EventOperations;
 import ru.yandex.practicum.filmorate.model.EventType;
@@ -13,7 +12,6 @@ import ru.yandex.practicum.filmorate.storage.UserStorage;
 import ru.yandex.practicum.filmorate.storage.impl.FriendDbStorage;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -40,30 +38,27 @@ public class UserService {
     }
 
     public User changeUser(User user) {
-        return userStorage.changeUSer(user);
+        userStorage.findUserById(user.getId());
+        return userStorage.changeUser(user);
     }
 
     public void addFriendToUser(long userId, long friendId) {
-        User user = getUserById(userId);
-        User friendUser = getUserById(friendId);
-        Collection<User> users = getAllUsers();
-        if (!users.contains(user) && users.contains(friendUser)) {
-            throw new ModelNotFoundException("User not found");
-        } else {
-            friendStorage.addFriendToUser(userId, friendId);
-            Event event = new Event(userId, friendId, EventType.FRIEND, EventOperations.ADD);
-            eventsStorage.addEvent(event);
-        }
+        userStorage.findUserById(userId);
+        userStorage.findUserById(friendId);
+        friendStorage.addFriendToUser(userId, friendId);
+        Event event = new Event(userId, friendId, EventType.FRIEND, EventOperations.ADD);
+        eventsStorage.addEvent(event);
     }
 
     public void deleteFromFriend(long userId, long friendId) {
+        userStorage.findUserById(userId);
+        userStorage.findUserById(friendId);
         friendStorage.deleteFromFriends(userId, friendId);
         Event event = new Event(userId, friendId, EventType.FRIEND, EventOperations.REMOVE);
         eventsStorage.addEvent(event);
     }
 
     public List<User> getUserFriends(long id) {
-        //user existence check
         userStorage.findUserById(id);
         List<User> userFriends = new ArrayList<>();
         List<Long> friendsId = friendStorage.getUserFriends(id);
@@ -91,12 +86,12 @@ public class UserService {
     }
 
     public void deleteUser(long id) {
-        getUserById(id);
+        userStorage.findUserById(id);
         userStorage.deleteUser(id);
     }
 
     public List<Event> getEvents(Long id) {
-        getUserById(id);
+        userStorage.findUserById(id);
         return eventsStorage.getEvents(id);
     }
 }

@@ -6,7 +6,6 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.model.Review;
 import ru.yandex.practicum.filmorate.service.FilmService;
 
 import javax.validation.Valid;
@@ -68,12 +67,6 @@ public class FilmController {
         filmService.deleteLike(id, userId);
     }
 
-  /* @GetMapping("/films/popular")
-    public List<Film> getPopularFilms(@RequestParam(defaultValue = "10") int count) {
-        log.info("Get popular films");
-        return filmService.getPopularFilms(count);
-    }*/
-
     @DeleteMapping("/films/{id}")
     public void deleteFilmById(@PathVariable long id) {
         log.info("Delete film {}", id);
@@ -85,7 +78,7 @@ public class FilmController {
     public List<Film> getSortFilmByDirector(@PathVariable long directorId,
                                             @RequestParam String sortBy) {
         log.info("Получен запрос к эндпоинту /films/director/{id}. Метод GET");
-        return filmService.getSortFilmByDirector(directorId, sortBy);
+        return filmService.getSortedFilmsByDirector(directorId, sortBy);
     }
 
     @DeleteMapping("/films{filmId}/directors/{directorId}")

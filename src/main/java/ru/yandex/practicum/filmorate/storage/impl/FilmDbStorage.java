@@ -29,15 +29,6 @@ public class FilmDbStorage implements FilmStorage {
         this.jdbcTemplate = jdbcTemplate;
     }
 
-    private static final String GET_SORTED_FILMS_BY_YEAR = "SELECT * FROM FILMS_DIRECTORS FD " +
-            "LEFT JOIN FILM F on  fd.FILM_ID=F.FILM_ID " +
-            "LEFT JOIN MPA M on F.MPA_ID = M.MPA_ID" +
-            " WHERE fd.director_id = ? ORDER BY RELEASE_DATE ASC";
-    private static final String GET_SORT_BY_LIKES_FILMS = "SELECT *  FROM FILMS_DIRECTORS FD " +
-            "LEFT JOIN FILM F on  fd.FILM_ID=F.FILM_ID LEFT JOIN LIKES L on F.FILM_ID = L.FILM_ID LEFT JOIN MPA M on F.MPA_ID = M.MPA_ID WHERE fd.director_id = ? " +
-            "GROUP BY F.FILM_ID ORDER BY COUNT(L.USER_ID) DESC";
-
-    //++++++++++++++++++++++
     @Override
     public long addFilm(Film film) {
         List<Film> allFilms = getFilms();
@@ -51,22 +42,17 @@ public class FilmDbStorage implements FilmStorage {
         }
     }
 
-    //+++++++++++++++++
     @Override
     public void changeFilm(Film film) {
-        if (getFilms().stream().anyMatch(x -> x.getId() == film.getId())) {
-            String sql = "update film set film_name = ?, description = ?, release_date = ?, duration_film = ?," +
-                    " mpa_id = ? where film_id = ?";
-            jdbcTemplate.update(sql,
-                    film.getName(),
-                    film.getDescription(),
-                    film.getReleaseDate(),
-                    film.getDuration(),
-                    film.getMpa().getId(),
-                    film.getId());
-        } else {
-            throw new ModelNotFoundException("Film not found with id " + film.getId());
-        }
+        String sql = "update film set film_name = ?, description = ?, release_date = ?, duration_film = ?," +
+                " mpa_id = ? where film_id = ?";
+        jdbcTemplate.update(sql,
+                film.getName(),
+                film.getDescription(),
+                film.getReleaseDate(),
+                film.getDuration(),
+                film.getMpa().getId(),
+                film.getId());
     }
 
     @Override
@@ -86,13 +72,25 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     @Override
-    public List<Film> getSortFilmByDirectorSortByYear(Long directorId) {
-        return jdbcTemplate.query(GET_SORTED_FILMS_BY_YEAR, FilmDbStorage::mapRowToFilm, directorId);
+    public List<Film> getFilmsByDirectorSortedByYear(Long directorId) {
+        String sqlQuery =
+                "SELECT * FROM FILMS_DIRECTORS FD " +
+                        "LEFT JOIN FILM F on  fd.FILM_ID=F.FILM_ID " +
+                        "LEFT JOIN MPA M on F.MPA_ID = M.MPA_ID " +
+                        "WHERE fd.director_id = ? " +
+                        "ORDER BY RELEASE_DATE ASC";
+        return jdbcTemplate.query(sqlQuery, FilmDbStorage::mapRowToFilm, directorId);
     }
 
     @Override
-    public List<Film> getSortFilmByDirectorSortByLikes(Long directorId) {
-        return jdbcTemplate.query(GET_SORT_BY_LIKES_FILMS, FilmDbStorage::mapRowToFilm, directorId);
+    public List<Film> getFilmsByDirectorSortedByLikes(Long directorId) {
+        String sqlQuery =
+                "SELECT *  FROM FILMS_DIRECTORS FD " +
+                "LEFT JOIN FILM F on  fd.FILM_ID=F.FILM_ID LEFT JOIN LIKES L on F.FILM_ID = L.FILM_ID " +
+                "LEFT JOIN MPA M on F.MPA_ID = M.MPA_ID WHERE fd.director_id = ? " +
+                "GROUP BY F.FILM_ID " +
+                "ORDER BY COUNT(L.USER_ID) DESC";
+        return jdbcTemplate.query(sqlQuery, FilmDbStorage::mapRowToFilm, directorId);
     }
 
     @Override
@@ -193,7 +191,7 @@ public class FilmDbStorage implements FilmStorage {
                         "LEFT JOIN likes l ON f.film_id = l.film_id " +
                         "LEFT JOIN mpa m ON f.mpa_id = m.mpa_id " +
                         "WHERE locate(UPPER(?), UPPER(d.DIRECTOR_NAME)) " +
-                        "order by f.rate DESC";
+                        "ORDER BY f.rate DESC";
         return jdbcTemplate.query(sql, FilmDbStorage::mapRowToFilm, query);
     }
 
@@ -216,10 +214,10 @@ public class FilmDbStorage implements FilmStorage {
                         "WHERE f.film_id = ?";
         jdbcTemplate.update(sqlQuery, filmId);
     }
-     
+
     @Override
     public boolean deleteFilm(long id) {
-        String sql = "delete from film where film_id = ?";
+        String sql = "DELETE FROM film WHERE film_id = ?";
         return jdbcTemplate.update(sql, id) > 0;
     }
 }

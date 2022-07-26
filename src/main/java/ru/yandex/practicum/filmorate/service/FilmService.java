@@ -40,17 +40,12 @@ public class FilmService {
         this.userStorage = userStorage;
     }
 
-    //если б rate для этого создали, то на входи не поступали бы фильмы с rate = 4
-    //и их не пришлось бы обнулять
-    //TODO перед финальным ревью поправить сторадж, чтобы не писать в него rate
     public Film addFilm(Film film) {
-        //TODO удалить костыль
         film.setRate(0);
         long idFilm = filmStorage.addFilm(film);
         genreStorage.addGenresToFilm(film, idFilm);
         film.setId(idFilm);
         addDirectorInFilm(film);
-        //likesStorage.updateRate(film.getId());
         return getFilmById(idFilm);
     }
 
@@ -64,12 +59,7 @@ public class FilmService {
 
     public List<Film> getFilmsByIds(List<Long> ids) {
         List<Film> films = filmStorage.getFilms(ids);
-        //todo эту байду перед финальным ревью вынести в отдельный метод
-        films.forEach(film -> {
-            film.setLikes(likesStorage.getLikes(film.getId()));
-            film.setGenres(getGenresByFilmId(film.getId()));
-            film.setDirectors(directorsStorage.getDirectorsFromFilm(film.getId()));
-        });
+        films.forEach(this::constructFilm);
         return films;
     }
 
@@ -78,16 +68,12 @@ public class FilmService {
     }
 
     public Film changeFilm(Film film) {
-        if (getFilms().stream().anyMatch(x -> x.getId() == film.getId())) {
-            filmStorage.changeFilm(film);
-            genreStorage.changeFilmGenres(film);
-            directorsStorage.updateDirectorToFilm(film);
-        } else {
-            throw new ModelNotFoundException("Film not found with id " + film.getId());
-        }
+        filmStorage.getFilmById(film.getId());
+        filmStorage.changeFilm(film);
+        genreStorage.changeFilmGenres(film);
+        directorsStorage.updateDirectorToFilm(film);
         return film;
     }
-
 
     public void like(long filmId, long userId) {
         likesStorage.like(filmId, userId);
@@ -110,20 +96,13 @@ public class FilmService {
 
     public List<Film> getFilms() {
         List<Film> films = filmStorage.getFilms();
-        //todo эту байду перед финальным ревью вынести в отдельный метод
-        for (Film film : films) {
-            film.setGenres(getGenresByFilmId(film.getId()));
-            film.setLikes(likesStorage.getLikes(film.getId()));
-            film.setDirectors(directorsStorage.getDirectorsFromFilm(film.getId()));
-        }
+        films.forEach(this::constructFilm);
         return films;
     }
 
-    //todo здесь тоже будет байда
     public List<Film> getPopularFilms(int count) {
         List<Film> films = likesStorage.getPopularFilms(count);
-        films.forEach(film -> film.setGenres(getGenresByFilmId(film.getId())));
-        films.forEach(film -> film.setLikes(likesStorage.getLikes(film.getId())));
+        films.forEach(this::constructFilm);
         return films;
     }
 
@@ -149,49 +128,42 @@ public class FilmService {
         }
     }
 
-    public List<Film> getSortFilmByDirector(Long directorId, String sortBy) {
+    public List<Film> getSortedFilmsByDirector(Long directorId, String sortBy) {
         log.info("Старт filmService. Метод getSortFilmByDirector. directorId:{}, parameter:{}.", directorId, sortBy);
         directorsStorage.getDirector(directorId);
         List<Film> films;
         switch (sortBy) {
             case "year":
-                films = filmStorage.getSortFilmByDirectorSortByYear(directorId);
+                films = filmStorage.getFilmsByDirectorSortedByYear(directorId);
                 break;
             case "likes":
-                films = filmStorage.getSortFilmByDirectorSortByLikes(directorId);
+                films = filmStorage.getFilmsByDirectorSortedByLikes(directorId);
                 break;
             default:
                 throw new ModelNotFoundException("сортировка не верна");
         }
-        for (Film film : films) {
-            film.setGenres(getGenresByFilmId(film.getId()));
-            film.setLikes(likesStorage.getLikes(film.getId()));
-            film.setDirectors(directorsStorage.getDirectorsFromFilm(film.getId()));
-        }
+        films.forEach(this::constructFilm);
         return films;
     }
 
     public List<Film> getPopularFilmsSharedWithFriend(long userId, long friendId) {
-        return filmStorage.getPopularFilmsSharedWithFriend(userId, friendId);
+        List<Film> films = filmStorage.getPopularFilmsSharedWithFriend(userId, friendId);
+        films.forEach(this::constructFilm);
+        return films;
     }
 
-    public List<Film> getPopularFilmsByGenreAndYear(int limit, Optional<Long> genreId, Optional<Long> year){
+    public List<Film> getPopularFilmsByGenreAndYear(int limit, Optional<Long> genreId, Optional<Long> year) {
         List<Film> films;
-
         if (genreId.isEmpty() && year.isEmpty()) {
-            films =  getPopularFilms(limit);
+            films = getPopularFilms(limit);
         } else if (genreId.isPresent() && year.isEmpty()) {
-            films =  filmStorage.getPopularFilmsByGenre(limit, genreId.get());
+            films = filmStorage.getPopularFilmsByGenre(limit, genreId.get());
         } else if (genreId.isEmpty()) {
-            films =  filmStorage.getPopularFilmsByYear(limit, year.get());
+            films = filmStorage.getPopularFilmsByYear(limit, year.get());
         } else {
-            films =  filmStorage.getPopularFilmsByGenreAndYear(limit, genreId.get(), year.get());
+            films = filmStorage.getPopularFilmsByGenreAndYear(limit, genreId.get(), year.get());
         }
-        for (Film film : films) {
-            film.setGenres(getGenresByFilmId(film.getId()));
-            film.setLikes(likesStorage.getLikes(film.getId()));
-            film.setDirectors(directorsStorage.getDirectorsFromFilm(film.getId()));
-        }
+        films.forEach(this::constructFilm);
         return films;
     }
 
@@ -199,13 +171,7 @@ public class FilmService {
         userStorage.findUserById(userId);
         List<Long> recommendationsIds = likesStorage.getRecommendations(userId);
         List<Film> recommendations = filmStorage.getFilms(recommendationsIds);
-        //todo эту байду перед финальным ревью вынести в отдельный метод
-        recommendations.forEach(film -> {
-                    film.setGenres(getGenresByFilmId(film.getId()));
-                    film.setLikes(likesStorage.getLikes(film.getId()));
-                    film.setDirectors(directorsStorage.getDirectorsFromFilm(film.getId()));
-                }
-        );
+        recommendations.forEach(this::constructFilm);
         return recommendations;
     }
 
@@ -223,8 +189,14 @@ public class FilmService {
                     throw new ValidationException("Bad search argument");
             }
         }
-
+        films.forEach(this::constructFilm);
         films.sort(((o1, o2) -> Integer.compare(o2.getRate(), o1.getRate())));
         return films;
+    }
+
+    private void constructFilm(Film film) {
+        film.setGenres(getGenresByFilmId(film.getId()));
+        film.setLikes(likesStorage.getLikes(film.getId()));
+        film.setDirectors(directorsStorage.getDirectorsFromFilm(film.getId()));
     }
 }

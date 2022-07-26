@@ -53,8 +53,6 @@ public class DirectorValidate {
             log.error("Имя директора не должен быть более 50 символов");
             throw new ValidationException("имя директора длиннее 50 символов");
         }
-
-
     }
 
     public void validateNameAndExist(Director director) {

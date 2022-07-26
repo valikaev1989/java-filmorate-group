@@ -88,9 +88,8 @@ public class UserController {
         return userService.getEvents(id);
     }
 
-    //TODO fix method name
     @DeleteMapping("/{id}")
-    public void deleteFilmById(@PathVariable("id") long id) {
+    public void deleteUserById(@PathVariable("id") long id) {
         log.info("Delete user {}", id);
         userService.deleteUser(id);
     }
