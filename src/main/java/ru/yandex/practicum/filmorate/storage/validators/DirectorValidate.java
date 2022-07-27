@@ -32,7 +32,7 @@ public class DirectorValidate {
         }
     }
 
-    public void validateExistFilm(Director director) {
+    private void validateExistFilm(Director director) {
         SqlRowSet sqlRow = jdbcTemplate.queryForRowSet(CHECK_DIR, director.getId(), director.getName());
         if (sqlRow.next()) {
             log.error("Director already exist {}", director);
