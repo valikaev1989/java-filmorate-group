@@ -24,34 +24,34 @@ public class DirectorValidate {
     }
 
     public void validateIdDirector(Long directorId) {
-        log.info("Проверка Id директора: " + directorId);
+        log.info("Check director id {} ", directorId);
         SqlRowSet sqlRow = jdbcTemplate.queryForRowSet(CHECK_ID_DIR, directorId);
         if (!sqlRow.next()) {
-            log.error("директор с id: " + directorId + "отсутствует в БД");
-            throw new ModelNotFoundException("Нет такого директора с id: " + directorId);
+            log.error("Director not found {}", directorId);
+            throw new ModelNotFoundException("Director not found");
         }
     }
 
     public void validateExistFilm(Director director) {
         SqlRowSet sqlRow = jdbcTemplate.queryForRowSet(CHECK_DIR, director.getId(), director.getName());
         if (sqlRow.next()) {
-            log.error("Этот режиссер уже существует{}", director);
-            throw new ModelAlreadyExistException("Этот пользователь уже существует");
+            log.error("Director already exist {}", director);
+            throw new ModelAlreadyExistException("Director already exist");
         }
     }
 
-    public void validateNameDirector(Director director) {
+    private void validateNameDirector(Director director) {
         if (director.getName() == null) {
-            log.error("Имя директора не должен быть null");
-            throw new ValidationException("имя директора null");
+            log.error("Name shouldn't be null");
+            throw new ValidationException("Name shouldn't be null");
         }
         if (director.getName().isEmpty() || director.getName().equals(" ")) {
-            log.error("Имя директора не должен быть пустым");
-            throw new ValidationException("имя директора пустое");
+            log.error("Name shouldn't be empty");
+            throw new ValidationException("Name shouldn't be empty");
         }
         if (director.getName().length() > 50) {
-            log.error("Имя директора не должен быть более 50 символов");
-            throw new ValidationException("имя директора длиннее 50 символов");
+            log.error("Name should be less than 50 characters");
+            throw new ValidationException("Name should be less than 50 characters");
         }
     }
 
@@ -67,11 +67,11 @@ public class DirectorValidate {
 
     public void validateFilmId(Long filmId) {
         if (filmId < 0) {
-            throw new ModelNotFoundException(" filmId меньше нуля:" + filmId);
+            throw new ModelNotFoundException("filmId less than 0");
         }
         SqlRowSet sqlRow = jdbcTemplate.queryForRowSet(CHECK_ID_FILM, filmId);
         if (!sqlRow.next()) {
-            throw new ValidationException("Нет такого фильма с filmId:" + filmId);
+            throw new ValidationException("Film not found");
         }
     }
 }

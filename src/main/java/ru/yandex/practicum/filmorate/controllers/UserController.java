@@ -36,19 +36,19 @@ public class UserController {
     @PostMapping
     public User addUser(@Valid @RequestBody User user) {
         User result = userService.addUser(userService.checkName(user));
-        log.info("User was added " + result.getName());
+        log.info("User was added {}", result.getName());
         return result;
     }
 
     @PutMapping
     public User changeUser(@Valid @RequestBody User user) {
-        log.info("User was changed " + user.getName() + " " + user.getId());
+        log.info("User was changed {}", user.getId());
         return userService.changeUser(userService.checkName(user));
     }
 
     @PutMapping("/{id}/friends/{friendId}")
     public void addToFriend(@PathVariable long id, @PathVariable long friendId) {
-        log.info(String.format("User %d was added like friend to user %d", friendId, id));
+        log.info("User {} was added like friend to user {}", friendId, id);
         userService.addFriendToUser(id, friendId);
     }
 
@@ -60,19 +60,19 @@ public class UserController {
 
     @GetMapping("/{id}/friends")
     public List<User> getUserFriends(@PathVariable long id) {
-        log.info(String.format("Get all the user's %d friends", id));
+        log.info("Get all the user's {} friends", id);
         return userService.getUserFriends(id);
     }
 
     @GetMapping("/{id}/friends/common/{otherId}")
     public List<User> getCommonFriends(@PathVariable long id, @PathVariable long otherId) {
-        log.info(String.format("Get common friends between user %d and user %d", id, otherId));
+        log.info("Get common friends between user {} and user {}", id, otherId);
         return userService.getCommonFriend(id, otherId);
     }
 
     @GetMapping("/{id}")
     public User getUser(@PathVariable long id) {
-        log.info(String.format("Get user %d", id));
+        log.info("Get user {}", id);
         return userService.getUserById(id);
     }
 
@@ -84,7 +84,7 @@ public class UserController {
     
     @GetMapping("/{id}/feed")
     public List<Event> getEvents(@PathVariable("id") Long id) {
-        log.info("Получен запрос к эндпоинту /users/{id}/feed. Метод GET");
+        log.info("Get events {}", id);
         return userService.getEvents(id);
     }
 

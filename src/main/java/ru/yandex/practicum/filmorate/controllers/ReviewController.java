@@ -15,7 +15,7 @@ import java.util.Optional;
 @Slf4j
 @Validated
 public class ReviewController {
-    ReviewService reviewService;
+    private final ReviewService reviewService;
 
     @Autowired
     public ReviewController(ReviewService reviewService) {

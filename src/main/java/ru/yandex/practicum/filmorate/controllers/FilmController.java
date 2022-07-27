@@ -32,7 +32,7 @@ public class FilmController {
     @PostMapping("/films")
     public Film addFilm(@Valid @RequestBody Film film) throws ValidationException {
         if (filmService.checkDate(film)) {
-            log.info(String.format("Film %s was added", film.getName()));
+            log.info("Film {} was added", film.getName());
             return filmService.addFilm(film);
         } else {
             throw new ValidationException("Wrong release date");
@@ -41,14 +41,14 @@ public class FilmController {
 
     @GetMapping("/films/{id}")
     public Film getFilmById(@PathVariable long id) {
-        log.info(String.format("Get film %d", id));
+        log.info("Get film {}", id);
         return filmService.getFilmById(id);
     }
 
     @PutMapping("/films")
     public Film changeFilm(@Valid @RequestBody Film film) throws ValidationException {
         if (filmService.checkDate(film)) {
-            log.info(String.format("Film %d was changed", film.getId()));
+            log.info("Film {} was changed", film.getId());
             return filmService.changeFilm(film);
         } else {
             throw new ValidationException("Wrong release date");
@@ -57,13 +57,13 @@ public class FilmController {
 
     @PutMapping("/films/{id}/like/{userId}")
     public void like(@PathVariable long id, @PathVariable long userId) {
-        log.info(String.format("User %d likes film %d", userId, id));
+        log.info("User {} likes film {}", userId, id);
         filmService.like(id, userId);
     }
 
     @DeleteMapping("/films/{id}/like/{userId}")
     public void deleteLike(@PathVariable long id, @PathVariable long userId) {
-        log.info(String.format("User %d deleted like from film %d", userId, id));
+        log.info("User {} deleted like from film {}", userId, id);
         filmService.deleteLike(id, userId);
     }
 
@@ -77,37 +77,22 @@ public class FilmController {
     @GetMapping("/films/director/{directorId}")
     public List<Film> getSortFilmByDirector(@PathVariable long directorId,
                                             @RequestParam String sortBy) {
-        log.info("Получен запрос к эндпоинту /films/director/{id}. Метод GET");
+        log.info("Get sorted films");
         return filmService.getSortedFilmsByDirector(directorId, sortBy);
     }
 
     @DeleteMapping("/films{filmId}/directors/{directorId}")
     public void deleteDirectorsFromFilm(@PathVariable long filmId, @PathVariable long directorId) {
-        log.info("Получен запрос к эндпоинту /films{id}/director/{id}. Метод DELETE");
+        log.info("Delete director {} from film {}", directorId, filmId);
         filmService.deleteDirectorInFilm(filmId, directorId);
     }
 
-    /**
-     * Возвращает список общих с другом фильмов с сортировкой по их популярности.
-     * API: GET /films/common?userId={userId}&friendId={friendId}
-     *
-     * @param userId   идентификатор пользователя, запрашивающего информацию
-     * @param friendId идентификатор пользователя, с которым необходимо сравнить список фильмов
-     * @return Возвращает список фильмов, отсортированных по популярности.
-     */
     @GetMapping("/films/common")
     public List<Film> getPopularFilmsSharedWithFriend(@RequestParam long userId, @RequestParam long friendId) {
         log.info("Get popular films shared with a friend.");
         return filmService.getPopularFilmsSharedWithFriend(userId, friendId);
     }
 
-    /** Вывод самых популярных фильмов по жанру и годам
-     * API: GET /films/popular?count={limit}&genreId={genreId}&year={year}
-     * @param count лимит вывода фильмов
-     * @param genreId идентификатор жанра
-     * @param year год выпуска фильма
-     * @return Возвращает список самых популярных фильмов указанного жанра за нужный год.
-     */
     @GetMapping("/films/popular")
     public List<Film> getPopularFilmsByGenreAndYear(@RequestParam(defaultValue = "10") int count,
                                                     @RequestParam Optional<Long> genreId,

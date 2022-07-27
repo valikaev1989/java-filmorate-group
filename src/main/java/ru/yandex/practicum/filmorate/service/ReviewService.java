@@ -46,8 +46,8 @@ public class ReviewService {
 
     public Review changeReview(Review review) {
         reviewStorage.changeReview(review);
-        Review review1 = reviewStorage.getReviewById(review.getReviewId());
-        Event event = new Event(review1.getUserId(), review.getReviewId(),
+        Review result = reviewStorage.getReviewById(review.getReviewId());
+        Event event = new Event(result.getUserId(), review.getReviewId(),
                 EventType.REVIEW,
                 EventOperations.UPDATE);
         eventsStorage.addEvent(event);

@@ -53,14 +53,8 @@ public class FilmService {
         Film film = filmStorage.getFilmById(id);
         film.setLikes(likesStorage.getLikes(id));
         film.setGenres(getGenresByFilmId(id));
-        film.setDirectors(directorsStorage.getDirectorsFromFilm(id));
+        film.setDirectors(new HashSet<>(directorsStorage.getDirectorsFromFilm(id)));
         return film;
-    }
-
-    public List<Film> getFilmsByIds(List<Long> ids) {
-        List<Film> films = filmStorage.getFilms(ids);
-        films.forEach(this::constructFilm);
-        return films;
     }
 
     private Set<Genre> getGenresByFilmId(long filmId) {
@@ -116,20 +110,20 @@ public class FilmService {
     }
 
     public void deleteDirectorInFilm(long filmId, long directorId) {
-        log.info("Старт filmService. Метод deleteDirectorInFilm. directorId:{},  filmId{}.", directorId, filmId);
+        log.info("Start filmService. Method deleteDirectorInFilm. directorId:{},  filmId{}.", directorId, filmId);
         directorsStorage.deleteDirectorFromFilm(filmId, directorId);
     }
 
     public void addDirectorInFilm(Film film) {
-        log.info("Старт filmService. Метод addDirectorInFilm. film:{}.", film);
-        List<Director> directors = film.getDirectors();
+        log.info("Start filmService. Method addDirectorInFilm. film:{}.", film);
+        List<Director> directors = new ArrayList<>(film.getDirectors());
         for (Director director : directors) {
             directorsStorage.addDirectorToFilm(film, director.getId());
         }
     }
 
     public List<Film> getSortedFilmsByDirector(Long directorId, String sortBy) {
-        log.info("Старт filmService. Метод getSortFilmByDirector. directorId:{}, parameter:{}.", directorId, sortBy);
+        log.info("Start filmService. Method getSortFilmByDirector. directorId:{}, parameter:{}.", directorId, sortBy);
         directorsStorage.getDirector(directorId);
         List<Film> films;
         switch (sortBy) {
@@ -140,7 +134,7 @@ public class FilmService {
                 films = filmStorage.getFilmsByDirectorSortedByLikes(directorId);
                 break;
             default:
-                throw new ModelNotFoundException("сортировка не верна");
+                throw new ModelNotFoundException("Wrong sort");
         }
         films.forEach(this::constructFilm);
         return films;
@@ -197,6 +191,6 @@ public class FilmService {
     private void constructFilm(Film film) {
         film.setGenres(getGenresByFilmId(film.getId()));
         film.setLikes(likesStorage.getLikes(film.getId()));
-        film.setDirectors(directorsStorage.getDirectorsFromFilm(film.getId()));
+        film.setDirectors(new HashSet<>(directorsStorage.getDirectorsFromFilm(film.getId())));
     }
 }
