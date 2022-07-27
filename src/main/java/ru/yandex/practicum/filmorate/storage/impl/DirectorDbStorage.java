@@ -20,17 +20,17 @@ import java.util.*;
 @Component
 public class DirectorDbStorage implements DirectorStorage {
     private final DirectorValidate directorValidate;
-    private static final String GET_ALL_DIRECTORS = "SELECT * FROM DIRECTORS";
-    private static final String UPDATE_DIRECTORS = "UPDATE DIRECTORS SET DIRECTOR_NAME = ? WHERE DIRECTOR_ID = ? ";
-    private static final String GET_DIRECTOR_BY_ID = "SELECT * FROM DIRECTORS WHERE DIRECTOR_ID = ?";
-    private static final String DELETE_DIRECTOR_BY_ID = "DELETE FROM DIRECTORS WHERE DIRECTOR_ID = ?";
-    private static final String INSERT_DIR_TO_FILM = "INSERT INTO FILMS_DIRECTORS (FILM_ID, DIRECTOR_ID) VALUES (?, ?)";
-    private static final String UPDATE_DIR_TO_FILM = "MERGE INTO FILMS_DIRECTORS (FILM_ID, DIRECTOR_ID) VALUES (?, ?)";
+    private static final String GET_ALL_DIRECTORS = "SELECT * FROM directors";
+    private static final String UPDATE_DIRECTORS = "UPDATE directors SET director_name = ? WHERE director_id = ? ";
+    private static final String GET_DIRECTOR_BY_ID = "SELECT * FROM directors WHERE director_id = ?";
+    private static final String DELETE_DIRECTOR_BY_ID = "DELETE FROM directors WHERE director_id = ?";
+    private static final String INSERT_DIR_TO_FILM = "INSERT INTO films_directors (film_id, director_id) VALUES (?, ?)";
+    private static final String UPDATE_DIR_TO_FILM = "MERGE INTO films_directors (film_id, director_id) VALUES (?, ?)";
     private static final String DELETE_DIRECTOR_FROM_FILM =
-            "DELETE FROM FILMS_DIRECTORS WHERE FILM_ID = ? AND DIRECTOR_ID = ?";
-    private static final String GET_DIRECTORS_FROM_FILM = "SELECT d.DIRECTOR_ID, d.DIRECTOR_NAME " +
-            "FROM DIRECTORS AS d " +
-            "LEFT JOIN FILMS_DIRECTORS AS fd ON d.DIRECTOR_ID = fd.DIRECTOR_ID WHERE fd.FILM_ID = ?";
+            "DELETE FROM films_directors WHERE film_id = ? AND director_id = ?";
+    private static final String GET_DIRECTORS_FROM_FILM = "SELECT d.director_id, d.director_name " +
+            "FROM directors AS d " +
+            "LEFT JOIN films_directors AS fd ON d.director_id = fd.director_id WHERE fd.film_id = ?";
     private final JdbcTemplate jdbcTemplate;
 
     @Autowired
@@ -73,11 +73,11 @@ public class DirectorDbStorage implements DirectorStorage {
         directorValidate.validateIdDirector(directorId);
         SqlRowSet dirRows = jdbcTemplate.queryForRowSet(GET_DIRECTOR_BY_ID, directorId);
         if (dirRows.next()) {
-            Director director = new Director(dirRows.getString("DIRECTOR_NAME"));
-            director.setId(dirRows.getInt("DIRECTOR_ID"));
+            Director director = new Director(dirRows.getString("director_name"));
+            director.setId(dirRows.getInt("director_id"));
             return director;
         } else {
-            throw new ModelNotFoundException(String.format("Not found director {}", directorId));
+            throw new ModelNotFoundException(String.format("Not found director %s", directorId));
         }
     }
 
@@ -124,7 +124,7 @@ public class DirectorDbStorage implements DirectorStorage {
         log.info("Start DirectorDbStorage updateDirectorToFilm  film {}", film);
         if (film.getDirectors().isEmpty()) {
             film.setDirectors(null);
-            jdbcTemplate.update("DELETE FROM FILMS_DIRECTORS WHERE FILM_ID = ?", film.getId());
+            jdbcTemplate.update("DELETE FROM films_directors WHERE FILM_ID = ?", film.getId());
         } else {
             for (Director f : film.getDirectors()) {
                 directorValidate.validateIdDirector(f.getId());

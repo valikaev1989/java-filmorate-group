@@ -34,8 +34,8 @@ public class ReviewDbStorage implements ReviewStorage {
 
     @Override
     public void changeReview(Review review) {
-        String sql = "UPDATE REVIEWS SET CONTENT = ?, IS_POSITIVE = ? " +
-                "WHERE REVIEW_ID = ?";
+        String sql = "UPDATE reviews SET content = ?, is_positive = ? " +
+                "WHERE review_id = ?";
         jdbcTemplate.update(sql, review.getContent(),
                 review.getIsPositive(),
                 review.getReviewId());
@@ -43,67 +43,68 @@ public class ReviewDbStorage implements ReviewStorage {
 
     @Override
     public void deleteReview(long id) {
-        String sql = "DELETE FROM REVIEWS " +
-                "WHERE REVIEW_ID = ?";
+        String sql = "DELETE FROM reviews " +
+                "WHERE review_id = ?";
         jdbcTemplate.update(sql, id);
     }
 
     @Override
     public Review getReviewById(long id) {
         try {
-            String sql = "SELECT * FROM REVIEWS " +
-                    "WHERE REVIEW_ID = ?";
+            String sql = "SELECT * FROM reviews " +
+                    "WHERE review_id = ?";
             return jdbcTemplate.queryForObject(sql, ReviewDbStorage::mapRowToReview, id);
         } catch (EmptyResultDataAccessException ex) {
-            throw new ModelNotFoundException(String.format("Review with id {} isn't exist", id));
+            throw new ModelNotFoundException(String.format("Review with id %d isn't exist", id));
         }
     }
 
     @Override
     public List<Review> getReviewByFilmId(long filmId, int count) {
-        String sql = "SELECT * FROM REVIEWS " +
-                "WHERE FILM_ID = ? " +
+        String sql = "SELECT * FROM reviews " +
+                "WHERE film_id = ? " +
                 "LIMIT ?";
         return jdbcTemplate.query(sql, ReviewDbStorage::mapRowToReview, filmId, count);
     }
 
     @Override
     public List<Review> getCountReview(int count) {
-        String sql = "SELECT * FROM REVIEWS " +
+        String sql = "SELECT * FROM reviews " +
                 "LIMIT ?";
         return jdbcTemplate.query(sql, ReviewDbStorage::mapRowToReview, count);
     }
 
     @Override
     public List<Review> getAllReview() {
-        String sql = "SELECT * FROM REVIEWS";
+        String sql = "SELECT * FROM reviews";
         return jdbcTemplate.query(sql, ReviewDbStorage::mapRowToReview);
     }
 
     @Override
     public void addLike(long id, long userId, boolean isLike) {
-        String sql = "MERGE INTO REVIEW_LIKES (REVIEW_ID, USER_ID, IS_LIKE) KEY (REVIEW_ID, USER_ID) VALUES ( ?, ?, ? )";
+        String sql = "MERGE INTO review_likes (review_id, user_id, is_like) KEY (review_id, user_id) VALUES ( ?, ?, ? )";
         jdbcTemplate.update(sql, id, userId, isLike);
         updateUseful(id);
     }
 
     @Override
     public void deleteLike(long id, long userId, boolean isLike) {
-        String sql = "DELETE FROM REVIEW_LIKES " +
-                "WHERE REVIEW_ID = ? AND USER_ID = ?";
+        String sql = "DELETE FROM review_likes " +
+                "WHERE review_id = ? AND user_id = ?";
         jdbcTemplate.update(sql, id, userId);
         updateUseful(id);
     }
 
     private void updateUseful(long reviewId) {
-        String sql = "UPDATE REVIEWS SET USEFUL = ? " +
-                "WHERE REVIEW_ID = ?";
+        String sql = "UPDATE reviews SET useful = ? " +
+                "WHERE review_id = ?";
         jdbcTemplate.update(sql, calculateUseful(reviewId), reviewId);
     }
 
     private int calculateUseful(long reviewId) {
-        String sqlQuery = "SELECT (SELECT COUNT (*) FROM REVIEW_LIKES WHERE REVIEW_ID = ? AND IS_LIKE) " +
-                "- (SELECT COUNT (*) FROM REVIEW_LIKES WHERE REVIEW_ID = ? AND NOT IS_LIKE)";
+        String sqlQuery = "SELECT " +
+                "(SELECT COUNT (*) FROM review_likes WHERE review_id = ? AND is_like) - " +
+                "(SELECT COUNT (*) FROM review_likes WHERE review_id = ? AND NOT is_like)";
         return jdbcTemplate.queryForObject(sqlQuery, Integer.class, reviewId, reviewId);
     }
 

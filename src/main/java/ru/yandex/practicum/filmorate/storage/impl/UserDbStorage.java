@@ -47,8 +47,8 @@ public class UserDbStorage implements UserStorage {
 
     @Override
     public User changeUser(User user) {
-        String sql = "UPDATE USERS SET EMAIL = ?, LOGIN = ?, USER_NAME = ?, BIRTH_DATE = ? " +
-                "WHERE USER_ID = ?";
+        String sql = "UPDATE users SET email = ?, login = ?, user_name = ?, birth_date = ? " +
+                "WHERE user_id = ?";
         jdbcTemplate.update(sql,
                 user.getEmail(),
                 user.getLogin(),
@@ -61,8 +61,8 @@ public class UserDbStorage implements UserStorage {
     @Override
     public User findUserById(long id) {
         try {
-            String sql = "SELECT * FROM USERS " +
-                    "WHERE USER_ID = ?";
+            String sql = "SELECT * FROM users " +
+                    "WHERE user_id = ?";
             return jdbcTemplate.queryForObject(sql, this::mapRowToUser, id);
         } catch (EmptyResultDataAccessException ex) {
             throw new ModelNotFoundException("User wasn't found");
@@ -71,24 +71,24 @@ public class UserDbStorage implements UserStorage {
 
     @Override
     public List<User> getUserFriends(long id) {
-        String sqlQuery = "SELECT * FROM USERS " +
-                "WHERE USER_ID IN " +
-                "(SELECT FRIEND_ID " +
-                "FROM FRIENDS " +
-                "WHERE USER_ID = ?)";
+        String sqlQuery = "SELECT * FROM users " +
+                "WHERE user_id IN " +
+                "(SELECT friend_id " +
+                "FROM friends " +
+                "WHERE user_id = ?)";
 
         return jdbcTemplate.query(sqlQuery, this::mapRowToUser, id);
     }
 
     @Override
     public boolean deleteUser(long id) {
-        String sql = "DELETE FROM USERS " +
-                "WHERE USER_ID = ?";
+        String sql = "DELETE FROM users " +
+                "WHERE user_id = ?";
         return jdbcTemplate.update(sql, id) > 0;
     }
 
     public boolean deleteAllUsers() {
-        String sql = "DELETE FROM USERS";
+        String sql = "DELETE FROM users";
         return jdbcTemplate.update(sql) > 0;
     }
 

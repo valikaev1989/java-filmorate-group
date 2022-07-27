@@ -24,29 +24,29 @@ public class GenreDbStorage implements GenreStorage {
     @Override
     public Genre getGenreById(int id) {
         String sql = "SELECT * " +
-                "FROM GENRE " +
-                "WHERE GENRE_ID = ?";
+                "FROM genre " +
+                "WHERE genre_id = ?";
         return jdbcTemplate.queryForObject(sql, this::mapRowToGenre, id);
     }
 
     @Override
     public List<Genre> getAllGenres() {
-        String sql = "SELECT * FROM GENRE";
+        String sql = "SELECT * FROM genre";
         return jdbcTemplate.query(sql, this::mapRowToGenre);
     }
 
     @Override
     public List<Genre> getFilmGenres(long idFilm) {
-        String sql = "SELECT G.GENRE_ID, G.NAME " +
-                "FROM GENRE AS G " +
-                "LEFT JOIN GENRE_AND_FILM AS GAF ON G.GENRE_ID = GAF.GENRE_ID " +
-                "WHERE GAF.FILM_ID = ?";
+        String sql = "SELECT g.genre_id, g.name " +
+                "FROM genre AS g " +
+                "LEFT JOIN genre_and_film AS gaf ON g.genre_id = gaf.genre_id " +
+                "WHERE gaf.film_id = ?";
         return jdbcTemplate.query(sql, this::mapRowToGenre, idFilm);
     }
 
     @Override
     public void addGenresToFilm(Film film, long idFilm) {
-        String sql = "INSERT INTO GENRE_AND_FILM (GENRE_ID, FILM_ID) " +
+        String sql = "INSERT INTO genre_and_film (genre_id, film_id) " +
                 "VALUES (?, ?)";
         Set<Genre> genres = film.getGenres();
         if (genres != null) {
@@ -58,8 +58,8 @@ public class GenreDbStorage implements GenreStorage {
 
     @Override
     public void deleteFilmAllGenres(long idFilm) {
-        String sql = "DELETE FROM GENRE_AND_FILM " +
-                "WHERE FILM_ID = ?";
+        String sql = "DELETE FROM genre_and_film " +
+                "WHERE film_id = ?";
         jdbcTemplate.update(sql, idFilm);
     }
 

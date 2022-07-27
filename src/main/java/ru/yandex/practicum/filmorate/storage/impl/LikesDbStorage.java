@@ -24,7 +24,7 @@ public class LikesDbStorage implements LikesStorage {
 
     @Override
     public void like(long id, long userId) {
-        String sql = "INSERT INTO LIKES(FILM_ID, USER_ID)" +
+        String sql = "INSERT INTO likes(film_id, user_id)" +
                 "VALUES(?, ?)";
         jdbcTemplate.update(sql, id, userId);
         updateRate(id);
@@ -32,26 +32,26 @@ public class LikesDbStorage implements LikesStorage {
 
     @Override
     public void deleteLike(long filmId, long userId) {
-        String sql = "DELETE FROM LIKES " +
-                "WHERE FILM_ID = ? AND USER_ID = ?";
+        String sql = "DELETE FROM likes " +
+                "WHERE film_id = ? AND user_id = ?";
         jdbcTemplate.update(sql, filmId, userId);
         updateRate(filmId);
     }
 
     @Override
     public Set<Long> getLikes(long filmId) {
-        String sql = "SELECT USER_ID " +
-                "FROM LIKES " +
-                "WHERE FILM_ID = ?";
+        String sql = "SELECT user_id " +
+                "FROM likes " +
+                "WHERE film_id = ?";
         List<Long> likes = jdbcTemplate.query(sql, LikesDbStorage::mapRowToLong, filmId);
         return new HashSet<>(likes);
     }
 
     @Override
     public List<Film> getPopularFilms(int count) {
-        String sql = "SELECT * FROM FILM F " +
-                "LEFT JOIN MPA M ON F.MPA_ID = M.MPA_ID " +
-                "ORDER BY F.RATE DESC " +
+        String sql = "SELECT * FROM film f " +
+                "LEFT JOIN mpa m ON f.mpa_id = m.mpa_id " +
+                "ORDER BY f.rate DESC " +
                 "LIMIT ?";
         return jdbcTemplate.query(sql, FilmDbStorage::mapRowToFilm, count);
     }
@@ -62,19 +62,20 @@ public class LikesDbStorage implements LikesStorage {
 
     @Override
     public void updateRate(long filmId) {
-        String sql = "UPDATE FILM F SET RATE = (SELECT COUNT(L.USER_ID) FROM LIKES L WHERE L.FILM_ID = F.FILM_ID) " +
-                "WHERE FILM_ID = ?";
+        String sql = "UPDATE film f SET rate = " +
+                "(SELECT COUNT(l.user_id) FROM likes l WHERE l.film_id = f.film_id) " +
+                "WHERE film_id = ?";
         jdbcTemplate.update(sql, filmId);
     }
 
     @Override
     public List<Long> getRecommendations(long userId) {
         String sqlQuery =
-                "SELECT FILM_ID FROM LIKES WHERE USER_ID = " +
-                        "(SELECT USER_ID FROM LIKES WHERE FILM_ID IN " +
-                        "(SELECT FILM_ID FROM LIKES WHERE USER_ID = ?) AND USER_ID <> ? " +
-                        "GROUP BY USER_ID ORDER BY COUNT(FILM_ID) DESC LIMIT 1) " +
-                        "AND FILM_ID NOT IN (SELECT FILM_ID FROM LIKES WHERE USER_ID = ?)";
+                "SELECT film_id FROM likes WHERE user_id = " +
+                        "(SELECT user_id FROM likes WHERE film_id IN " +
+                        "(SELECT film_id FROM LIKES WHERE user_id = ?) AND user_id <> ? " +
+                        "GROUP BY user_id ORDER BY COUNT(film_id) DESC LIMIT 1) " +
+                        "AND film_id NOT IN (SELECT film_id FROM likes WHERE user_id = ?)";
         return jdbcTemplate.query(sqlQuery, this::makeFilmId, userId, userId, userId);
     }
 

@@ -24,14 +24,14 @@ public class MpaDbStorage implements MpaStorage {
     @Override
     public Mpa getMpaById(int id) {
         String sql = "SELECT * " +
-                "FROM MPA " +
-                "WHERE MPA_ID = ?";
+                "FROM mpa " +
+                "WHERE mpa_id = ?";
         return jdbcTemplate.queryForObject(sql, this::mapRowToMpa, id);
     }
 
     @Override
     public List<Mpa> getAllMpa() {
-        String sql = "SELECT * FROM MPA";
+        String sql = "SELECT * FROM mpa";
         return jdbcTemplate.query(sql, this::mapRowToMpa);
     }
 
