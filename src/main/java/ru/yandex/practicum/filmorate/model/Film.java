@@ -18,7 +18,7 @@ public class Film {
     private long id;
     private Set<Long> likes = new HashSet<>();
     private Set<Genre> genres = new HashSet<>();
-    private List<Director> Directors = new ArrayList<>();
+    private Set<Director> Directors = new HashSet<>();
 
     @NotBlank(message = "Name cannot be blank")
     private String name;

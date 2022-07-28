@@ -10,7 +10,6 @@ import java.util.List;
 
 @Slf4j
 @RestController
-@RequestMapping("/directors")
 public class DirectorController {
 
     private final DirectorService directorService;
@@ -20,33 +19,33 @@ public class DirectorController {
         this.directorService = directorService;
     }
 
-    @GetMapping
+    @GetMapping("/directors")
     public List<Director> getAllDirectors() {
-        log.info("Получен запрос к эндпоинту /directors. Метод GET");
+        log.info("Get all directors");
         return directorService.getAllDirectors();
     }
 
-    @PostMapping
+    @PostMapping("/directors")
     public Director addDirector(@RequestBody Director director) {
-        log.info("Получен запрос к эндпоинту /directors. Метод POST");
+        log.info("Add director {}", director.getName());
         return directorService.addDirector(director);
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("/directors/{id}")
     public Director getDirector(@PathVariable("id") Long directorId) {
-        log.info("Получен запрос к эндпоинту /directors/id. Метод GET");
+        log.info("Get director {}", directorId);
         return directorService.getDirector(directorId);
     }
 
-    @PutMapping
+    @PutMapping("/directors")
     public Director updateDirector(@RequestBody Director director) {
-        log.info("Получен запрос к эндпоинту /directors. Метод PUT");
+        log.info("Update director {}", director.getId());
         return directorService.updateDirector(director);
     }
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/directors/{id}")
     public void deleteDirector(@PathVariable("id") Long directorId) {
-        log.info("Получен запрос к эндпоинту /directors/id. Метод DELETE");
+        log.info("Delete director {}", directorId);
         directorService.deleteDirector(directorId);
     }
 }

@@ -34,8 +34,8 @@ public class ReviewDbStorage implements ReviewStorage {
 
     @Override
     public void changeReview(Review review) {
-        String sql = "update reviews set content = ?, is_positive = ? " +
-                "where review_id = ?";
+        String sql = "UPDATE reviews SET content = ?, is_positive = ? " +
+                "WHERE review_id = ?";
         jdbcTemplate.update(sql, review.getContent(),
                 review.getIsPositive(),
                 review.getReviewId());
@@ -43,14 +43,16 @@ public class ReviewDbStorage implements ReviewStorage {
 
     @Override
     public void deleteReview(long id) {
-        String sql = "delete from reviews where review_id = ?";
+        String sql = "DELETE FROM reviews " +
+                "WHERE review_id = ?";
         jdbcTemplate.update(sql, id);
     }
 
     @Override
     public Review getReviewById(long id) {
         try {
-            String sql = "select * from reviews where review_id = ?";
+            String sql = "SELECT * FROM reviews " +
+                    "WHERE review_id = ?";
             return jdbcTemplate.queryForObject(sql, ReviewDbStorage::mapRowToReview, id);
         } catch (EmptyResultDataAccessException ex) {
             throw new ModelNotFoundException(String.format("Review with id %d isn't exist", id));
@@ -59,45 +61,50 @@ public class ReviewDbStorage implements ReviewStorage {
 
     @Override
     public List<Review> getReviewByFilmId(long filmId, int count) {
-        String sql = "select * from reviews where film_id = ? limit ?";
+        String sql = "SELECT * FROM reviews " +
+                "WHERE film_id = ? " +
+                "LIMIT ?";
         return jdbcTemplate.query(sql, ReviewDbStorage::mapRowToReview, filmId, count);
     }
 
     @Override
     public List<Review> getCountReview(int count) {
-        String sql = "select * from reviews limit ?";
+        String sql = "SELECT * FROM reviews " +
+                "LIMIT ?";
         return jdbcTemplate.query(sql, ReviewDbStorage::mapRowToReview, count);
     }
 
     @Override
     public List<Review> getAllReview() {
-        String sql = "select * from reviews";
+        String sql = "SELECT * FROM reviews";
         return jdbcTemplate.query(sql, ReviewDbStorage::mapRowToReview);
     }
 
     @Override
     public void addLike(long id, long userId, boolean isLike) {
-        String sql = "merge into REVIEW_LIKES (review_id, user_id, is_like) key (REVIEW_ID, USER_ID) values ( ?, ?, ? )";
+        String sql = "MERGE INTO review_likes (review_id, user_id, is_like) KEY (review_id, user_id) VALUES ( ?, ?, ? )";
         jdbcTemplate.update(sql, id, userId, isLike);
         updateUseful(id);
     }
 
     @Override
     public void deleteLike(long id, long userId, boolean isLike) {
-        String sql = "delete from review_likes " +
-                "where review_id = ? and user_id = ?";
+        String sql = "DELETE FROM review_likes " +
+                "WHERE review_id = ? AND user_id = ?";
         jdbcTemplate.update(sql, id, userId);
         updateUseful(id);
     }
 
     private void updateUseful(long reviewId) {
-        String sql = "update reviews set USEFUL = ? where REVIEW_ID = ?";
+        String sql = "UPDATE reviews SET useful = ? " +
+                "WHERE review_id = ?";
         jdbcTemplate.update(sql, calculateUseful(reviewId), reviewId);
     }
 
     private int calculateUseful(long reviewId) {
-        String sqlQuery = "SELECT (SELECT COUNT (*) FROM review_likes WHERE review_id = ? AND is_like) " +
-                "- (SELECT COUNT (*) FROM review_likes WHERE review_id = ? AND NOT is_like)";
+        String sqlQuery = "SELECT " +
+                "(SELECT COUNT (*) FROM review_likes WHERE review_id = ? AND is_like) - " +
+                "(SELECT COUNT (*) FROM review_likes WHERE review_id = ? AND NOT is_like)";
         return jdbcTemplate.queryForObject(sqlQuery, Integer.class, reviewId, reviewId);
     }
 
