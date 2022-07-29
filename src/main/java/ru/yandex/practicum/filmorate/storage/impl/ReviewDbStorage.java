@@ -50,13 +50,9 @@ public class ReviewDbStorage implements ReviewStorage {
 
     @Override
     public Review getReviewById(long id) {
-        try {
-            String sql = "SELECT * FROM reviews " +
-                    "WHERE review_id = ?";
-            return jdbcTemplate.queryForObject(sql, ReviewDbStorage::mapRowToReview, id);
-        } catch (EmptyResultDataAccessException ex) {
-            throw new ModelNotFoundException(String.format("Review with id %d isn't exist", id));
-        }
+        String sql = "SELECT * FROM reviews " +
+                "WHERE review_id = ?";
+        return jdbcTemplate.queryForObject(sql, ReviewDbStorage::mapRowToReview, id);
     }
 
     @Override

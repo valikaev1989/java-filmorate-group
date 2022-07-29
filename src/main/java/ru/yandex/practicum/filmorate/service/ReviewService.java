@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exceptions.ModelNotFoundException;
 import ru.yandex.practicum.filmorate.model.*;
@@ -15,9 +16,7 @@ import java.util.Optional;
 @Service
 public class ReviewService {
     private final ReviewStorage reviewStorage;
-
     private final UserStorage userStorage;
-
     private final FilmStorage filmStorage;
     private final EventsStorage eventsStorage;
 
@@ -31,7 +30,7 @@ public class ReviewService {
     }
 
     public Review addReview(Review review) {
-        if (isExistFilm(review.getFilmId()) && isExistUser(review.getUserId())) {
+        if (isFilmExist(review.getFilmId()) && isExistUser(review.getUserId())) {
             long id = reviewStorage.addReview(review);
             review.setReviewId(id);
             Event event = new Event(review.getUserId(), id,
@@ -64,7 +63,11 @@ public class ReviewService {
     }
 
     public Review getReviewById(long id) {
-        return reviewStorage.getReviewById(id);
+        try {
+            return reviewStorage.getReviewById(id);
+        } catch (EmptyResultDataAccessException ex) {
+            throw new ModelNotFoundException(String.format("Review with id %d isn't exist", id));
+        }
     }
 
     public List<Review> getReviewByFilmId(Optional<Long> filmId, int count) {
@@ -91,8 +94,12 @@ public class ReviewService {
         return user.isPresent();
     }
 
-    private boolean isExistFilm(long id) {
-        Optional<Film> film = Optional.ofNullable(filmStorage.getFilmById(id));
-        return film.isPresent();
+    private boolean isFilmExist(long id) {
+        try {
+            filmStorage.getFilmById(id);
+        } catch (EmptyResultDataAccessException ex) {
+            return false;
+        }
+        return true;
     }
 }
