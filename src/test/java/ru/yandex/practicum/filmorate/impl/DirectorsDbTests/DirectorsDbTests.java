@@ -73,11 +73,11 @@ public class DirectorsDbTests {
         film.addDirector(director2);
         film.addDirector(director3);
         filmService.changeFilm(film);
-        directorService.getDirectorsFromFilm(film.getId());
-        assertEquals(3, directorService.getDirectorsFromFilm(film.getId()).size());
+        directorService.getDirectorsByFilm(film.getId());
+        assertEquals(3, directorService.getDirectorsByFilm(film.getId()).size());
         directorService.deleteDirectorFromFilm(film.getId(), director.getId());
         directorService.deleteDirectorFromFilm(film.getId(), director2.getId());
-        assertEquals(1, directorService.getDirectorsFromFilm(film.getId()).size());
+        assertEquals(1, directorService.getDirectorsByFilm(film.getId()).size());
         directorService.getDirector(director.getId());
     }
 

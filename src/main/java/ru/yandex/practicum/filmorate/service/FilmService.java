@@ -53,7 +53,7 @@ public class FilmService {
         Film film = filmStorage.getFilmById(id);
         film.setLikes(likesStorage.getLikes(id));
         film.setGenres(getGenresByFilmId(id));
-        film.setDirectors(new HashSet<>(directorsStorage.getDirectorsFromFilm(id)));
+        film.setDirectors(new HashSet<>(directorsStorage.getDirectorsByFilm(id)));
         return film;
     }
 
@@ -191,6 +191,6 @@ public class FilmService {
     private void constructFilm(Film film) {
         film.setGenres(getGenresByFilmId(film.getId()));
         film.setLikes(likesStorage.getLikes(film.getId()));
-        film.setDirectors(new HashSet<>(directorsStorage.getDirectorsFromFilm(film.getId())));
+        film.setDirectors(new HashSet<>(directorsStorage.getDirectorsByFilm(film.getId())));
     }
 }

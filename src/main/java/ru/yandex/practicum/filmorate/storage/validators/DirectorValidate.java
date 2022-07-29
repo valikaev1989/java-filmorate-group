@@ -10,6 +10,7 @@ import ru.yandex.practicum.filmorate.exceptions.ModelNotFoundException;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.Director;
 
+//TODO del comments and imports
 @Slf4j
 @Component
 public class DirectorValidate {
