@@ -9,6 +9,4 @@ public interface EventsStorage {
     List<Event> getEvents(Long id);
 
     void addEvent(Event event);
-
-    Event getEventById(Long eventId);
 }
