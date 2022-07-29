@@ -8,7 +8,6 @@ import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.DirectorStorage;
-import ru.yandex.practicum.filmorate.storage.validators.DirectorValidate;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -16,7 +15,7 @@ import java.util.*;
 
 @Slf4j
 @Component
-public class DirectorDbStorage implements DirectorStorage {
+public class DirectorDBStorage implements DirectorStorage {
     private static final String GET_ALL_DIRECTORS = "SELECT * FROM directors";
     private static final String UPDATE_DIRECTORS = "UPDATE directors SET director_name = ? WHERE director_id = ? ";
     private static final String GET_DIRECTOR_BY_ID = "SELECT * FROM directors WHERE director_id = ?";
@@ -25,18 +24,15 @@ public class DirectorDbStorage implements DirectorStorage {
     private static final String UPDATE_DIR_TO_FILM = "MERGE INTO films_directors (film_id, director_id) VALUES (?, ?)";
     private static final String DELETE_DIRECTOR_FROM_FILM =
             "DELETE FROM films_directors WHERE film_id = ? AND director_id = ?";
+    private static final String DELETE_ALL_DIRECTORS_FROM_FILM = "DELETE FROM films_directors WHERE FILM_ID = ?";
     private static final String GET_DIRECTORS_FROM_FILM = "SELECT d.director_id, d.director_name " +
             "FROM directors AS d " +
             "LEFT JOIN films_directors AS fd ON d.director_id = fd.director_id WHERE fd.film_id = ?";
     private final JdbcTemplate jdbcTemplate;
 
-    //TODO
-    private final DirectorValidate directorValidate;
-
     @Autowired
-    public DirectorDbStorage(JdbcTemplate jdbcTemplate, DirectorValidate directorValidate) {
+    public DirectorDBStorage(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
-        this.directorValidate = directorValidate;
     }
 
     @Override
@@ -94,7 +90,6 @@ public class DirectorDbStorage implements DirectorStorage {
         for (Director director : film.getDirectors()) {
             jdbcTemplate.update(INSERT_DIR_TO_FILM, film.getId(), director.getId());
         }
-
     }
 
     @Override
@@ -110,16 +105,14 @@ public class DirectorDbStorage implements DirectorStorage {
     }
 
     @Override
-    public void updateDirectorToFilm(Film film) {
-        log.info("Start DirectorDbStorage updateDirectorToFilm  film {}", film);
-        if (film.getDirectors().isEmpty()) {
-            film.setDirectors(null);
-            jdbcTemplate.update("DELETE FROM films_directors WHERE FILM_ID = ?", film.getId());
-        } else {
-            for (Director f : film.getDirectors()) {
-                directorValidate.validateIdDirector(f.getId());
-                jdbcTemplate.update(UPDATE_DIR_TO_FILM, film.getId(), f.getId());
-            }
-        }
+    public void deleteAllDirectorsFromFilm(long filmId) {
+        log.info("Start DirectorDbStorage deleteAllDirectorsFromFilm  filmId {}", filmId);
+        jdbcTemplate.update(DELETE_ALL_DIRECTORS_FROM_FILM, filmId);
+    }
+
+    @Override
+    public void updateDirectorToFilm(long filmId, long directorId) {
+        log.info("Start DirectorDbStorage updateDirectorToFilm  filmId {}, directorId {}", filmId, directorId);
+        jdbcTemplate.update(UPDATE_DIR_TO_FILM, filmId, directorId);
     }
 }

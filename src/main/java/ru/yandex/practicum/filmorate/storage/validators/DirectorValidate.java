@@ -10,7 +10,6 @@ import ru.yandex.practicum.filmorate.exceptions.ModelNotFoundException;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.Director;
 
-//TODO del comments and imports
 @Slf4j
 @Component
 public class DirectorValidate {
@@ -43,15 +42,15 @@ public class DirectorValidate {
 
     private void validateNameDirector(Director director) {
         if (director.getName() == null) {
-            log.error("Name shouldn't be null");
+            log.warn("Name shouldn't be null");
             throw new ValidationException("Name shouldn't be null");
         }
         if (director.getName().isEmpty() || director.getName().equals(" ")) {
-            log.error("Name shouldn't be empty");
+            log.warn("Name shouldn't be empty");
             throw new ValidationException("Name shouldn't be empty");
         }
         if (director.getName().length() > 50) {
-            log.error("Name should be less than 50 characters");
+            log.warn("Name should be less than 50 characters");
             throw new ValidationException("Name should be less than 50 characters");
         }
     }
