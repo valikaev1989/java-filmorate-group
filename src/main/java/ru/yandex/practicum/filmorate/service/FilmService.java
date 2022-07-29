@@ -2,6 +2,7 @@ package ru.yandex.practicum.filmorate.service;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exceptions.ModelNotFoundException;
 import ru.yandex.practicum.filmorate.model.*;
@@ -50,10 +51,15 @@ public class FilmService {
     }
 
     public Film getFilmById(long id) {
-        Film film = filmStorage.getFilmById(id);
+        Film film;
+        try {
+            film = filmStorage.getFilmById(id);
+        } catch (EmptyResultDataAccessException ex) {
+            throw new ModelNotFoundException("Film wasn't found");
+        }
         film.setLikes(likesStorage.getLikes(id));
         film.setGenres(getGenresByFilmId(id));
-        film.setDirectors(new HashSet<>(directorsStorage.getDirectorsFromFilm(id)));
+        film.setDirectors(new HashSet<>(directorsStorage.getDirectorsByFilm(id)));
         return film;
     }
 
@@ -62,7 +68,11 @@ public class FilmService {
     }
 
     public Film changeFilm(Film film) {
-        filmStorage.getFilmById(film.getId());
+        try {
+            filmStorage.getFilmById(film.getId());
+        } catch (EmptyResultDataAccessException ex) {
+            throw new ModelNotFoundException("Film wasn't found");
+        }
         filmStorage.changeFilm(film);
         genreStorage.changeFilmGenres(film);
         directorsStorage.updateDirectorToFilm(film);
@@ -191,6 +201,6 @@ public class FilmService {
     private void constructFilm(Film film) {
         film.setGenres(getGenresByFilmId(film.getId()));
         film.setLikes(likesStorage.getLikes(film.getId()));
-        film.setDirectors(new HashSet<>(directorsStorage.getDirectorsFromFilm(film.getId())));
+        film.setDirectors(new HashSet<>(directorsStorage.getDirectorsByFilm(film.getId())));
     }
 }

@@ -1,57 +1,82 @@
 package ru.yandex.practicum.filmorate.service;
 
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.exceptions.ModelNotFoundException;
 import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.storage.impl.DirectorDbStorage;
+import ru.yandex.practicum.filmorate.storage.DirectorStorage;
+import ru.yandex.practicum.filmorate.storage.validators.DirectorValidate;
 
 import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 
-@Slf4j
 @Service
 public class DirectorService {
-    private final DirectorDbStorage directorDbStorage;
+    private final DirectorStorage directorStorage;
+    private final DirectorValidate directorValidate;
 
     @Autowired
-    public DirectorService(DirectorDbStorage directorDbStorage) {
-        this.directorDbStorage = directorDbStorage;
+    public DirectorService(DirectorStorage directorStorage, DirectorValidate directorValidate) {
+        this.directorStorage = directorStorage;
+        this.directorValidate = directorValidate;
     }
 
     public List<Director> getAllDirectors() {
-        return directorDbStorage.getAllDirectors();
+        return directorStorage.getAllDirectors();
     }
 
     public Director getDirector(Long directorId) {
-        return directorDbStorage.getDirector(directorId);
+        directorValidate.validateIdDirector(directorId);
+        Optional<Director> director = directorStorage.getDirector(directorId);
+        if (director.isPresent()) {
+            return director.get();
+        } else {
+            throw new ModelNotFoundException(String.format("Not found director %s", directorId));
+        }
     }
 
     public Director addDirector(Director director) {
-        return directorDbStorage.addDirector(director);
+        directorValidate.validateNameAndExist(director);
+        return directorStorage.addDirector(director);
     }
 
     public Director updateDirector(Director director) {
-        return directorDbStorage.updateDirector(director);
+        directorValidate.validateNameAndId(director);
+        return directorStorage.updateDirector(director);
     }
 
     public void deleteDirector(Long directorId) {
-        directorDbStorage.deleteDirector(directorId);
+        directorValidate.validateIdDirector(directorId);
+        directorStorage.deleteDirector(directorId);
     }
 
     public void deleteDirectorFromFilm(Long filmId, Long directorId) {
-        directorDbStorage.deleteDirectorFromFilm(filmId, directorId);
+        directorValidate.validateIdDirector(directorId);
+        directorValidate.validateFilmId(filmId);
+        directorStorage.deleteDirectorFromFilm(filmId, directorId);
     }
 
     public void addDirectorToFilm(Film film, Long directorId) {
-        directorDbStorage.addDirectorToFilm(film, directorId);
+        directorValidate.validateIdDirector(directorId);
+        directorStorage.addDirectorToFilm(film, directorId);
     }
 
     public void updateDirectorToFilm(Film film) {
-        directorDbStorage.updateDirectorToFilm(film);
+        Set<Director> directors = film.getDirectors();
+        if (directors == null || directors.isEmpty()) {
+            film.setDirectors(null);
+            directorStorage.deleteAllDirectorsFromFilm(film.getId());
+        } else {
+            for (Director d : directors) {
+                directorStorage.updateDirectorToFilm(film.getId(), d.getId());
+            }
+        }
     }
 
-    public List<Director> getDirectorsFromFilm(Long filmId) {
-        return directorDbStorage.getFilmDirectors(filmId);
+    public List<Director> getDirectorsByFilm(Long filmId) {
+        directorValidate.validateFilmId(filmId);
+        return directorStorage.getDirectorsByFilm(filmId);
     }
 }

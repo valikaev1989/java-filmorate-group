@@ -40,27 +40,18 @@ public class EventDbStorage implements EventsStorage {
                 .withTableName("events")
                 .usingGeneratedKeyColumns("event_id");
         long eventId = insert.executeAndReturnKey(event.toMapEvent()).longValue();
-        Event result = getEventById(eventId);
-        log.info("End EventDbStorage.addEvent event was added:{}.", result);
-    }
-
-    @Override
-    public Event getEventById(Long eventId) {
-        return jdbcTemplate.queryForObject(GET_EVENT_BY_ID, this::mapRowToEvent, eventId);
+        event.setEventId(eventId);
+        log.info("End EventDbStorage.addEvent event was added:{}.", event);
     }
 
     private Event mapRowToEvent(ResultSet rs, int rowNum) throws SQLException {
-        if (rs.getRow() != 0) {
-            return new Event(
-                    rs.getLong("event_id"),
-                    rs.getLong("event_user_id"),
-                    rs.getLong("entity_id"),
-                    EventType.valueOf(rs.getString("event_type")),
-                    EventOperations.valueOf(rs.getString("event_operation")),
-                    rs.getLong("time_stamp")
-            );
-        } else {
-            throw new ModelNotFoundException("Event not found");
-        }
+        return new Event(
+                rs.getLong("event_id"),
+                rs.getLong("event_user_id"),
+                rs.getLong("entity_id"),
+                EventType.valueOf(rs.getString("event_type")),
+                EventOperations.valueOf(rs.getString("event_operation")),
+                rs.getLong("time_stamp")
+        );
     }
 }
